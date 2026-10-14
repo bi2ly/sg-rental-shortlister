@@ -12,9 +12,20 @@ class Listing:
     project: str
     rent: float                  # S$/month
     sqft: float
-    bedrooms: int | None = None
+    bedrooms: int | None = None  # 0 = studio, None = unknown
     has_study: bool = False
     url: str | None = None
+    # Filled in when the listing comes from a portal
+    listing_id: str | None = None
+    source: str | None = None            # e.g. "99.co"
+    title: str | None = None
+    highlights: str | None = None
+    district: int | None = None
+    lat: float | None = None
+    lng: float | None = None
+    completed_year: int | None = None
+    photo_count: int = 0
+    posted_at: str | None = None         # ISO-8601 UTC
 
     @property
     def psf(self) -> float:
@@ -44,5 +55,6 @@ class Verdict:
     vs_median_pct: float | None = None   # negative = cheaper than median
     good_deal: bool = False
     keep: bool = False
+    decision: str = ""                   # one-line keep/skip reason
     reasons: list[str] = field(default_factory=list)
     flags: list[str] = field(default_factory=list)

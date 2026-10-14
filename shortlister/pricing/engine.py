@@ -73,6 +73,7 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
     else:
         v.reasons.append(f"not kept: above S${config.TARGET_RENT:,} target and good deal can't be confirmed")
 
+    v.decision = v.reasons[-1]
     if listing.has_study:
         v.reasons.append("has a study (bonus)")
     return v

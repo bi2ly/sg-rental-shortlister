@@ -1,0 +1,384 @@
+[
+ {
+  "propertyId": "jSBrpCsTCpS5CLVVYQFKUH",
+  "listingType": "rent",
+  "listingTitle": "Okio",
+  "projectName": "Okio",
+  "propertyType": "condo",
+  "subType": "Condo",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Okio",
+   "line2": "262 Balestier Rd \u00b7 D12",
+   "streetName": "Balestier Rd",
+   "streetNumber": "262",
+   "postalCode": "329714",
+   "district": 12
+  },
+  "pricing": {
+   "price": 3400,
+   "priceFormatted": "S$ 3,400",
+   "psf": 5.74,
+   "psfFormatted": "S$ 5.74 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 2,
+   "bathrooms": 1,
+   "floorAreaSqft": 592,
+   "floorAreaSqm": 55,
+   "floorAreaFormatted": "592 sqft",
+   "tenure": "Freehold",
+   "completedYear": 2015
+  },
+  "location": {
+   "latitude": 1.32213342822747,
+   "longitude": 103.853199661872
+  },
+  "media": {
+   "photoCount": 7,
+   "floorPlanCount": 1
+  },
+  "highlights": "Central Singapore 2 bedroom for rent",
+  "status": "active",
+  "datePosted": "27 mins ago",
+  "postedAt": 1791958146804019,
+  "url": "https://www.99.co/singapore/listings/jSBrpCsTCpS5CLVVYQFKUH",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:43.762Z"
+ },
+ {
+  "propertyId": "fyri2fUkdDRKwnhZqqGhg5",
+  "listingType": "room",
+  "listingTitle": "Villa Azura",
+  "projectName": "Villa Azura",
+  "propertyType": "condo",
+  "subType": "Condo",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Villa Azura",
+   "line2": "3 Cherry Ave \u00b7 D10",
+   "streetName": "Cherry Ave",
+   "streetNumber": "3",
+   "postalCode": "279872",
+   "district": 10
+  },
+  "pricing": {
+   "price": 1200,
+   "priceFormatted": "S$ 1,200",
+   "psf": 1,
+   "psfFormatted": "S$ 1 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": -1,
+   "floorAreaSqft": 1200,
+   "floorAreaSqm": 111.48,
+   "floorAreaFormatted": "1,200 sqft",
+   "tenure": "Freehold",
+   "completedYear": 1999
+  },
+  "location": {
+   "latitude": 1.33134255757931,
+   "longitude": 103.792904749865
+  },
+  "media": {
+   "photoCount": 10,
+   "floorPlanCount": 0
+  },
+  "status": "active",
+  "datePosted": "24 mins ago",
+  "postedAt": 1791958363155651,
+  "url": "https://www.99.co/singapore/listings/fyri2fUkdDRKwnhZqqGhg5",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:43.874Z"
+ },
+ {
+  "propertyId": "b9GarmkgkPdg2VGW47xKQt",
+  "listingType": "rent",
+  "listingTitle": "Newest",
+  "projectName": "Newest",
+  "propertyType": "condo",
+  "subType": "Apartment",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Newest",
+   "line2": "3 West Coast Dr \u00b7 D5",
+   "streetName": "West Coast Dr",
+   "streetNumber": "3",
+   "postalCode": "128021",
+   "district": 5
+  },
+  "pricing": {
+   "price": 3500,
+   "priceFormatted": "S$ 3,500",
+   "psf": 6.64,
+   "psfFormatted": "S$ 6.64 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 0,
+   "bathrooms": 1,
+   "floorAreaSqft": 527,
+   "floorAreaSqm": 48.96,
+   "floorAreaFormatted": "527 sqft",
+   "tenure": "956 yrs",
+   "completedYear": 2017
+  },
+  "location": {
+   "latitude": 1.31641321892511,
+   "longitude": 103.757451263571
+  },
+  "media": {
+   "photoCount": 11,
+   "floorPlanCount": 0
+  },
+  "highlights": "Super Rare Corner 1 bedder Tastefully Furnished with Pool View",
+  "status": "active",
+  "datePosted": "7 hrs ago",
+  "postedAt": 1791932103129196,
+  "url": "https://www.99.co/singapore/listings/b9GarmkgkPdg2VGW47xKQt",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:43.987Z"
+ },
+ {
+  "propertyId": "9WYYVfA5fxH4JjXAq3ZWdF",
+  "listingType": "rent",
+  "listingTitle": "Sunglade",
+  "projectName": "Sunglade",
+  "propertyType": "condo",
+  "subType": "Condo",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Sunglade",
+   "line2": "11 Serangoon Ave 2 \u00b7 D19",
+   "streetName": "Serangoon Ave 2",
+   "streetNumber": "11",
+   "postalCode": "556135",
+   "district": 19
+  },
+  "pricing": {
+   "price": 1350,
+   "priceFormatted": "S$ 1,350",
+   "psf": 1.49,
+   "psfFormatted": "S$ 1.49 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 1,
+   "bathrooms": 2,
+   "floorAreaSqft": 904,
+   "floorAreaSqm": 83.98,
+   "floorAreaFormatted": "904 sqft",
+   "tenure": "99 yrs",
+   "completedYear": 2003
+  },
+  "location": {
+   "latitude": 1.34897583186804,
+   "longitude": 103.870984546667
+  },
+  "media": {
+   "photoCount": 11,
+   "floorPlanCount": 0
+  },
+  "highlights": "Modern Comfort common rooms At Sunglade Near Serangoon MRT",
+  "status": "active",
+  "datePosted": "3 days ago",
+  "postedAt": 1791623794224486,
+  "url": "https://www.99.co/singapore/listings/9WYYVfA5fxH4JjXAq3ZWdF",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:44.637Z"
+ },
+ {
+  "propertyId": "UjGt4FVpqd4YnNYpF2osVy",
+  "listingType": "rent",
+  "listingTitle": "Suites 28",
+  "projectName": "Suites 28",
+  "propertyType": "condo",
+  "subType": "Apartment",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Suites 28",
+   "line2": "28 Lor 30 Geylang \u00b7 D14",
+   "streetName": "Lor 30 Geylang",
+   "streetNumber": "28",
+   "postalCode": "398361",
+   "district": 14
+  },
+  "pricing": {
+   "price": 3000,
+   "priceFormatted": "S$ 3,000",
+   "psf": 3.06,
+   "psfFormatted": "S$ 3.06 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 1,
+   "bathrooms": 1,
+   "floorAreaSqft": 980,
+   "floorAreaSqm": 91.04,
+   "floorAreaFormatted": "980 sqft",
+   "tenure": "Freehold",
+   "completedYear": 2015
+  },
+  "location": {
+   "latitude": 1.31268459175571,
+   "longitude": 103.885941111431
+  },
+  "media": {
+   "photoCount": 15,
+   "floorPlanCount": 1
+  },
+  "highlights": "One Bedder Penthouse Unit near Paya Lebar",
+  "status": "active",
+  "datePosted": "3 days ago",
+  "postedAt": 1791617069977549,
+  "url": "https://www.99.co/singapore/listings/UjGt4FVpqd4YnNYpF2osVy",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:44.743Z"
+ },
+ {
+  "propertyId": "BZgdGYQj85aVQqDctrJXZr",
+  "listingType": "rent",
+  "listingTitle": "Riviera 38",
+  "projectName": "Riviera 38",
+  "propertyType": "condo",
+  "subType": "Condo",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Riviera 38",
+   "line2": "38 Mar Thoma Rd \u00b7 D12",
+   "streetName": "Mar Thoma Rd",
+   "streetNumber": "38",
+   "postalCode": "328712",
+   "district": 12
+  },
+  "pricing": {
+   "price": 3200,
+   "priceFormatted": "S$ 3,200",
+   "psf": 5.83,
+   "psfFormatted": "S$ 5.83 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 1,
+   "bathrooms": 1,
+   "floorAreaSqft": 549,
+   "floorAreaSqm": 51,
+   "floorAreaFormatted": "549 sqft",
+   "tenure": "999 yrs",
+   "completedYear": 2015
+  },
+  "location": {
+   "latitude": 1.32816337851711,
+   "longitude": 103.863446045125
+  },
+  "media": {
+   "photoCount": 7,
+   "floorPlanCount": 0
+  },
+  "highlights": "Riviera 38 - 1 bedroom plus study near potong pasir and boon keng mrt",
+  "status": "active",
+  "datePosted": "5 days ago",
+  "postedAt": 1791520553580852,
+  "url": "https://www.99.co/singapore/listings/BZgdGYQj85aVQqDctrJXZr",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:45.053Z"
+ },
+ {
+  "propertyId": "gthJriHeQRfBmANpMzZJaE",
+  "listingType": "room",
+  "listingTitle": "Apartment (Condo) for Room Rent: Studios @ Marne.",
+  "projectName": "Studios @ Marne",
+  "propertyType": "condo",
+  "subType": "Apartment",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Apartment (Condo) for Room Rent: Studios @ Marne.",
+   "line2": "2 Marne Rd \u00b7 D8",
+   "streetName": "Marne Rd",
+   "streetNumber": "2",
+   "postalCode": "208393",
+   "district": 8
+  },
+  "pricing": {
+   "price": 3300,
+   "priceFormatted": "S$ 3,300",
+   "psf": 6.38,
+   "psfFormatted": "S$ 6.38 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": -1,
+   "bathrooms": 1,
+   "floorAreaSqft": 517,
+   "floorAreaSqm": 48.03,
+   "floorAreaFormatted": "517 sqft",
+   "tenure": "Freehold",
+   "completedYear": 2009
+  },
+  "location": {
+   "latitude": 1.31291563993984,
+   "longitude": 103.856924681278
+  },
+  "media": {
+   "photoCount": 13,
+   "floorPlanCount": 1
+  },
+  "highlights": "Large Studio Unit with mrt and amenities within mins",
+  "status": "active",
+  "datePosted": "5 days ago",
+  "postedAt": 1791516210709441,
+  "url": "https://www.99.co/singapore/listings/gthJriHeQRfBmANpMzZJaE",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:45.170Z"
+ },
+ {
+  "propertyId": "DUPLICATE_TEST",
+  "listingType": "rent",
+  "listingTitle": "Okio",
+  "projectName": "Okio",
+  "propertyType": "condo",
+  "subType": "Condo",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Okio",
+   "line2": "262 Balestier Rd \u00b7 D12",
+   "streetName": "Balestier Rd",
+   "streetNumber": "262",
+   "postalCode": "329714",
+   "district": 12
+  },
+  "pricing": {
+   "price": 3300,
+   "priceFormatted": "S$ 3,400",
+   "psf": 5.74,
+   "psfFormatted": "S$ 5.74 psf",
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 2,
+   "bathrooms": 1,
+   "floorAreaSqft": 592,
+   "floorAreaSqm": 55,
+   "floorAreaFormatted": "592 sqft",
+   "tenure": "Freehold",
+   "completedYear": 2015
+  },
+  "location": {
+   "latitude": 1.32213342822747,
+   "longitude": 103.853199661872
+  },
+  "media": {
+   "photoCount": 7,
+   "floorPlanCount": 1
+  },
+  "highlights": "Central Singapore 2 bedroom for rent",
+  "status": "active",
+  "datePosted": "27 mins ago",
+  "postedAt": 1791958146804019,
+  "url": "https://www.99.co/singapore/listings/jSBrpCsTCpS5CLVVYQFKUH-dup",
+  "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
+  "scrapedAt": "2026-10-14T06:36:43.762Z"
+ }
+]

@@ -53,6 +53,35 @@ Current limits of the data.gov.sg source: one benchmark per project (not per
 bedroom count), and only major projects (100+ units, 10+ contracts a quarter).
 Contract-level URA data will refine this once the URA access key is available.
 
+## Usage (listing collector)
+
+Collects condo rentals from 99.co through the
+[sian.agency 99.co scraper](https://apify.com/sian.agency/99co-property-scraper)
+on Apify, removes room rentals and duplicates, price-checks every unit and
+prints a ranked shortlist.
+
+```bash
+cp .env.example .env          # then paste your Apify token into .env
+
+# From a JSON export of an Apify run (free, no token needed)
+python -m shortlister collect --file my_export.json --show-skipped
+
+# Live run (costs money; capped at US$1 per run in shortlister/config.py)
+python -m shortlister collect --live
+```
+
+The shortlist has three sections:
+- **Shortlist**: meets the spec (within S$3,000, or S$3,000-3,500 and below market)
+- **Needs price check**: S$3,000-3,500 but the project has no market data yet
+  (common for small boutique condos until URA contract data is added)
+- **Skipped** (with `--show-skipped`): rejected, with the reason
+
+Notes from the first real export: 99.co mixes room rentals into condo results
+(showing the whole unit's size with a room price); they are removed using the
+"room" label, the listing text, and an implausibly low price per sqft.
+The scraper has no full description without paid enrichment, so a study is
+detected only from the title and highlight line.
+
 Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 
 ## Status
@@ -61,7 +90,7 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 
 - [x] Pricing engine (data.gov.sg benchmarks)
 - [ ] URA contract-level data (waiting for access key)
-- [ ] Listing collection (99.co)
+- [x] Listing collection (99.co via Apify): room filter, dedupe, ranked shortlist
 - [ ] Drive-time filter (≤25 min off-peak to Tanglin)
 - [ ] Telegram bot: daily shortlist + on-demand search
 

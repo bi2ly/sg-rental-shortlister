@@ -13,3 +13,9 @@ LOW_CONFIDENCE_CONTRACTS = 15
 
 # How many recent quarters of data to combine per project.
 QUARTERS_TO_USE = 4
+
+# --- Listing search (Apify 99.co scraper) ------------------------------------
+ANCHOR_LATLNG = (1.3048, 103.8237)   # Tanglin Mall
+SEARCH_RADIUS_M = 8000               # rough stand-in for 25 min off-peak drive
+MAX_RESULTS_PER_RUN = 60             # scraper is billed per listing returned
+MAX_COST_USD_PER_RUN = 1.0           # hard spending cap sent to Apify
