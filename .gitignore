@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Downloaded market data (re-fetched with `python -m shortlister refresh`)
+data/

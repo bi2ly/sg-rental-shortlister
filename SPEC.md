@@ -100,4 +100,4 @@ Each shortlisted listing shows:
 
 ## Status
 
-Specification agreed. Implementation not started.
+Specification agreed. Pricing engine (data.gov.sg) implemented; other parts in progress.
