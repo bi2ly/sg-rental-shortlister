@@ -1,20 +1,20 @@
 # SG Rental Shortlister
 
-A personal tool that helps find a place to rent in Singapore.
+A personal tool that helps find a condo to rent in Singapore.
 
 It does **not** make decisions or handle tenancy paperwork. It works as a
 **shortlister and pricing assistant**:
 
-- Collects rental listings matching my criteria (area, budget, size, MRT distance)
+- Collects rental listings matching my criteria (drive time, budget, size, layout)
 - Compares each asking rent against actual signed rental contracts
 - Flags listings as fairly priced, above market, or suspiciously cheap
 - Removes duplicate listings posted by multiple agents
-- Sends a regular shortlist with direct links to each listing
+- Sends a daily Telegram shortlist with direct links to each listing
 
 ## Data sources
 
 - **URA Data Service API**: private residential rental contracts (condos, ECs, landed)
-- **data.gov.sg**: HDB rental approvals and URA quarterly rental statistics
+- **data.gov.sg**: URA quarterly rental statistics per condo project
 - **Rental listing portals**: current listings to be shortlisted
 
 Government data is used under the
@@ -22,7 +22,7 @@ Government data is used under the
 
 ## Status
 
-🚧 Early planning stage. Not yet functional.
+🚧 Specification agreed (see [SPEC.md](SPEC.md)). Implementation not started.
 
 ## Disclaimer
 
