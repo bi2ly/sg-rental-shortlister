@@ -33,7 +33,7 @@ def test_room_rentals_removed(rows):
     listings, dropped = normalise(rows)
     dropped_names = {name for name, _ in dropped}
     # labelled "room" by 99.co, and Sunglade which is only given away by its text
-    assert {"Villa Azura", "Studios @ Marne", "Sunglade"} <= dropped_names
+    assert {"Villa Azura", "Studios @ Marne", "Sunglade", "Pandan Valley"} <= dropped_names
     assert "Okio" in {l.project for l in listings}
 
 

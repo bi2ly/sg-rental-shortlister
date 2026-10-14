@@ -380,5 +380,43 @@
   "url": "https://www.99.co/singapore/listings/jSBrpCsTCpS5CLVVYQFKUH-dup",
   "sourceLabel": "1.3048,103.8237 r=8000m \u00b7 rent",
   "scrapedAt": "2026-10-14T06:36:43.762Z"
+ },
+ {
+  "propertyId": "hNpFiMS7UWcgGqKQA4Tqij",
+  "listingType": "rent",
+  "listingTitle": "Pandan Valley",
+  "projectName": "Pandan Valley",
+  "propertyType": "condo",
+  "subType": "Condo",
+  "propertySegment": "residential",
+  "address": {
+   "line": "Pandan Valley",
+   "line2": "7 Pandan Valley \u00b7 D21",
+   "district": 21
+  },
+  "pricing": {
+   "price": 1300,
+   "psf": 1.07,
+   "currency": "SGD"
+  },
+  "specs": {
+   "bedrooms": 1,
+   "bathrooms": 3,
+   "floorAreaSqft": 1212,
+   "tenure": "Freehold",
+   "completedYear": 1978
+  },
+  "location": {
+   "latitude": 1.31864363606521,
+   "longitude": 103.778051137667
+  },
+  "media": {
+   "photoCount": 10,
+   "floorPlanCount": 0
+  },
+  "highlights": "Cheap common room near nus, sim",
+  "status": "active",
+  "postedAt": 1791968979398911,
+  "url": "https://www.99.co/singapore/listings/hNpFiMS7UWcgGqKQA4Tqij"
  }
 ]
