@@ -88,7 +88,7 @@ card data has no coordinates, so buildings are located with OneMap.
 
 ## Daily run on GitHub (no server needed)
 
-`.github/workflows/daily-shortlist.yml` runs every day at **07:47 Singapore time**
+`.github/workflows/daily-shortlist.yml` runs every day at **07:47 and 19:47 Singapore time**
 on GitHub's machines: it collects PropertyGuru listings posted since the last
 run, filters and price-checks them, and shows the shortlist on the run's page
 (**Actions** tab -> *Daily shortlist* -> latest run). The report is also kept as
@@ -117,7 +117,7 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 - [x] Listing collection (99.co via Apify): room filter, dedupe, ranked shortlist
 - [x] PropertyGuru as main source, cross-site duplicate merge
 - [x] Search-area filter (OneMap building coordinates)
-- [x] Daily run on GitHub Actions (07:47 SGT)
+- [x] Twice-daily run on GitHub Actions (07:47 and 19:47 SGT)
 - [x] Telegram: daily shortlist sent from GitHub Actions
 - [ ] Telegram: on-demand /search
 

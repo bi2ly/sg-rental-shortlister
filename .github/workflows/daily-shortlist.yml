@@ -2,9 +2,10 @@ name: Daily shortlist
 
 on:
   schedule:
-    # 23:47 UTC = 07:47 Singapore time. Off the hour because GitHub delays
+    # Times are UTC; Singapore is UTC+8. Off the hour because GitHub delays
     # jobs scheduled exactly on the hour when it is busy.
-    - cron: "47 23 * * *"
+    - cron: "47 23 * * *"   # 07:47 SGT
+    - cron: "47 11 * * *"   # 19:47 SGT
   workflow_dispatch:
     inputs:
       source:
