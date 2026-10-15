@@ -36,13 +36,13 @@ def verdict(v) -> str:
     """'🟢 13% below market (small sample)', '🟡 at market', '🔴 8% above market', '⚪ no market data'."""
     if v.vs_median_pct is None:
         return "⚪ no market data"
-    pct = v.vs_median_pct
+    pct = round(v.vs_median_pct)     # colour follows the number shown
     if abs(pct) <= AT_MARKET_PCT:
-        text = f"🟡 at market ({pct:+.0f}%)"
+        text = "🟡 at market" + (f" ({pct:+d}%)" if pct else "")
     elif pct < 0:
-        text = f"🟢 {abs(pct):.0f}% below market"
+        text = f"🟢 {-pct}% below market"
     else:
-        text = f"🔴 {pct:.0f}% above market"
+        text = f"🔴 {pct}% above market"
     if v.benchmark and v.benchmark.contracts < config.LOW_CONFIDENCE_CONTRACTS:
         text += " (small sample)"
     return text

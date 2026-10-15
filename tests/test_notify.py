@@ -108,3 +108,14 @@ def test_card_layout_v2(tmp_path):
     assert "benchmark based on" not in text and "Open on" not in text
     assert f"…and {15 - UNVERIFIED_MAX} more" in text
     assert text.count("⚪ no market data") == UNVERIFIED_MAX
+
+
+def test_verdict_colours():
+    from types import SimpleNamespace as NS
+    from shortlister.notify import verdict
+    b = NS(contracts=40)
+    assert verdict(NS(vs_median_pct=-3.3, benchmark=b)) == "🟡 at market (-3%)"
+    assert verdict(NS(vs_median_pct=-3.6, benchmark=b)) == "🟢 4% below market"
+    assert verdict(NS(vs_median_pct=0.2, benchmark=b)) == "🟡 at market"
+    assert verdict(NS(vs_median_pct=8.0, benchmark=b)) == "🔴 8% above market"
+    assert verdict(NS(vs_median_pct=None, benchmark=None)) == "⚪ no market data"
