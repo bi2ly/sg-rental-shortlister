@@ -113,3 +113,17 @@ def test_markdown_report(pg_rows, tmp_path):
     md = markdown(sl, len(pg_rows), len(dropped), new_only=True)
     assert md.startswith("# Condo shortlist") and "new listings since the last run" in md
     assert "[PropertyGuru](https://www.propertyguru.com.sg/listing/" in md
+
+
+@pytest.mark.parametrize("title", [
+    "Studio & One-Bedroom Loft Walk-Up Apartment Shophouse Condo Flat Landed Property For Monthly Rental",
+    "★ Condo for 6 pax Work permit workers, ★ No Lorry Park, Only Van",
+    "Rent In Singapore Housing Condominium Apartment Hotel Accommodation for expat short term rental",
+])
+def test_adverts_removed(title):
+    from shortlister.collect.propertyguru import skip_reason
+    raw = {"listingType": "RENT", "status": "ACT", "title": title, "price": 3000,
+           "floorAreaSqft": 700, "propertyType": "CONDO"}
+    assert "advert" in skip_reason(raw)
+    raw["title"] = "The Florence Residences"
+    assert skip_reason(raw) is None

@@ -18,6 +18,15 @@ from .. import config
 from ..models import Listing
 from .ninetynine import ONE_BED_WORDS, ROOM_PSF_CEILING, ROOM_WORDS, STUDIO_WORDS, STUDY_WORDS
 
+# Agent adverts / dorms / short stays, not a specific unit (seen in the first
+# full sweep, 2026-10-15).
+ADVERT_WORDS = re.compile(
+    r"work ?permit|workers|\bpax\b|dorm|short[- ]?term|hotel|accommodation|serviced"
+    r"|walk-?up|shophouse|landed|\bany(where)?\b|for expat|monthly rental",
+    re.IGNORECASE,
+)
+MAX_TITLE_LEN = 60    # real project names are short; long titles are adverts
+
 STREET = re.compile(r"^\s*([^,]+)")   # "262 BALESTIER ROAD, Balestier / Toa Payoh"
 
 
@@ -40,6 +49,8 @@ def skip_reason(raw: dict) -> str | None:
         return f"property type {ptype or 'unknown'} (not a condo/apartment)"
     if ROOM_WORDS.search(title):
         return "room rental: listing title mentions a room"
+    if ADVERT_WORDS.search(title) or len(title) > MAX_TITLE_LEN:
+        return "agent advert / dorm / short stay, not a specific unit"
     if sqft and price and price / sqft < ROOM_PSF_CEILING:
         return f"room rental: S${price / sqft:.2f} psf is far too low for a whole unit"
     if not (price and sqft):
