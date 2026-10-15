@@ -79,6 +79,9 @@ def place(listings: list[Listing], geocoder: Geocoder,
             point = geocoder.locate(l.project, (streets or {}).get(l.listing_id))
             if point:
                 l = replace(l, lat=point[0], lng=point[1])
+        if l.district and l.district not in config.AREA_DISTRICTS:
+            dropped.append((l.project, f"outside the search area (D{l.district:02d})"))
+            continue
         if l.lat is not None and not in_area(l.lat, l.lng):
             dropped.append((l.project, "outside the search area"))
             continue

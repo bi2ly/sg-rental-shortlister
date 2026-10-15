@@ -23,6 +23,9 @@ QUARTERS_TO_USE = 4
 # From the map agreed on 2026-10-15: West Coast/Queenstown to Bedok/East Coast,
 # Harbourfront to Ang Mo Kio. Replaces the earlier drive-time idea.
 AREA_BBOX = {"lat_min": 1.262, "lat_max": 1.380, "lng_min": 103.765, "lng_max": 103.935}
+# Postal districts inside the map. A second check, because a rectangle is coarse
+# at the corners (first run let through Tampines D18 and Dairy Farm D23).
+AREA_DISTRICTS = set(range(1, 17)) | {19, 20, 21}
 
 # PropertyGuru only searches by area name, so one search per area below.
 AREA_KEYWORDS = [

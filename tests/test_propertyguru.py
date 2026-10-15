@@ -127,3 +127,11 @@ def test_adverts_removed(title):
     assert "advert" in skip_reason(raw)
     raw["title"] = "The Florence Residences"
     assert skip_reason(raw) is None
+
+
+def test_districts_outside_area_dropped(tmp_path):
+    from shortlister.models import Listing
+    geo = Geocoder(cache_path=tmp_path / "g.json", fetch=lambda q: {"results": []})
+    kept, dropped = place([Listing("The Tapestry", 3500, 603, district=18),
+                           Listing("Okio", 3400, 592, district=12)], geo)
+    assert [l.project for l in kept] == ["Okio"] and "D18" in dropped[0][1]

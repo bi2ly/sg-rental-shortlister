@@ -30,6 +30,11 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
     benchmarks = source.benchmarks()
     name, score = match_project(listing.project, list(benchmarks))
     bench = benchmarks.get(name) if name else None
+    # An approximate name match must also be in the same postal district
+    # (first run matched "VA Residences" D12 to "RV Residences" D10).
+    if bench and score < 1.0 and listing.district and bench.district \
+            and int(bench.district) != int(listing.district):
+        name, bench = None, None
     v = Verdict(listing=listing, benchmark=bench, matched_name=name)
 
     psf = listing.psf

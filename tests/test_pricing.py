@@ -109,3 +109,17 @@ def test_small_one_bedroom_flagged(source):
 def test_min_size_550_but_500_with_study(source):
     assert "under 550" in evaluate(Listing("26 Newton", 2900, 540, bedrooms=1), source).decision
     assert evaluate(Listing("26 Newton", 2900, 549, bedrooms=1, has_study=True), source).keep
+
+
+def test_fuzzy_match_needs_same_district(tmp_path):
+    import json, time
+    from shortlister.pricing import DataGovSource
+    rec = {"qtr": "2026-Q2", "project_name": "RV RESIDENCES", "postal_district": "10",
+           "25th_percentile": "6.2", "median": "6.7", "75th_percentile": "7.1", "rental_contracts": "30"}
+    cache = tmp_path / "c.json"
+    cache.write_text(json.dumps({"fetched_at": time.time(), "records": [rec]}))
+    src = DataGovSource(cache_path=cache)
+    wrong = evaluate(Listing("VA Residences", 3350, 624, bedrooms=2, district=12), src)
+    assert wrong.benchmark is None
+    right = evaluate(Listing("RV Residence", 3350, 624, bedrooms=2, district=10), src)
+    assert right.benchmark is not None
