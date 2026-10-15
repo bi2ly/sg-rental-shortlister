@@ -13,7 +13,7 @@ tenancy documents. The final choice always stays with me.
 | Property type | Whole-unit **condo only** (no HDB, no room rentals) |
 | Location | Within **25 minutes off-peak driving** to Tanglin |
 | Budget | Target **S$3,000/month**; up to **S$3,500** only if it is a "good deal" |
-| Size | Minimum **500 sqft** |
+| Size | Minimum **550 sqft** (raised from 500: smaller "1-bedrooms" were often studios); **500 sqft** if the listing has a study |
 | Layout | 1 bedroom minimum with a **separate bedroom** (no studios); **1 bedroom + study** preferred (ranked higher) |
 | Condition | Well maintained (see scoring below) |
 
@@ -46,7 +46,7 @@ The URA access key is stored in a local `.env` file and is **never committed**.
 ## Processing pipeline
 
 1. **Collect**: fetch condo rental listings matching budget and size filters.
-2. **Filter**: drop listings over S$3,500, under 500 sqft, non-condo, or beyond
+2. **Filter**: drop listings over S$3,500, under 550 sqft, non-condo, or beyond
    25 minutes off-peak drive to Tanglin.
 3. **Deduplicate**: merge the same unit posted by several agents (same project,
    size, floor range and similar rent); keep the cheapest version.

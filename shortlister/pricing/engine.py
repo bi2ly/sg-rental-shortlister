@@ -56,8 +56,9 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
         v.flags.append("no market data for this project: review price manually")
 
     # --- budget & size rules from SPEC ----------------------------------------
-    if listing.sqft < config.MIN_SQFT:
-        v.reasons.append(f"rejected: under {config.MIN_SQFT} sqft")
+    min_sqft = config.MIN_SQFT_WITH_STUDY if listing.has_study else config.MIN_SQFT
+    if listing.sqft < min_sqft:
+        v.reasons.append(f"rejected: under {min_sqft} sqft")
     elif config.REJECT_STUDIOS and listing.bedrooms == 0:
         v.reasons.append("rejected: studio (no separate bedroom)")
     elif listing.rent > config.MAX_RENT:

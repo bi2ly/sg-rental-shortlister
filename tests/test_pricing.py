@@ -104,3 +104,8 @@ def test_small_one_bedroom_flagged(source):
     assert any("may be a studio" in f for f in v.flags)
     roomy = evaluate(Listing("26 Newton", 2900, 600, bedrooms=1), source)
     assert not any("may be a studio" in f for f in roomy.flags)
+
+
+def test_min_size_550_but_500_with_study(source):
+    assert "under 550" in evaluate(Listing("26 Newton", 2900, 540, bedrooms=1), source).decision
+    assert evaluate(Listing("26 Newton", 2900, 549, bedrooms=1, has_study=True), source).keep

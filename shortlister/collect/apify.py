@@ -30,7 +30,7 @@ def search_input(max_results: int = config.MAX_RESULTS_PER_RUN) -> dict:
         "propertyType": "condo",
         "propertySegment": "residential",
         "maxPrice": config.MAX_RENT,
-        "minFloorArea": config.MIN_SQFT,
+        "minFloorArea": min(config.MIN_SQFT, config.MIN_SQFT_WITH_STUDY),
         "maxResults": max_results,
         "enrichListings": False,
     }
