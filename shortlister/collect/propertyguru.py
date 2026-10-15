@@ -89,3 +89,38 @@ def normalise(rows: list[dict]) -> tuple[list[Listing], list[tuple[str, str]]]:
         else:
             kept.append(to_listing(raw))
     return kept, dropped
+
+
+# --- Full-page details for shortlisted units only ------------------------------
+
+def detail_input(urls: list[str]) -> dict:
+    return {"startUrls": [{"url": u} for u in urls], "scrapeDetails": True,
+            "maxItems": len(urls)}
+
+
+def sg_date(iso: str | None) -> str | None:
+    """'2026-11-04T16:00:00.000Z' (midnight Singapore time) -> '2026-11-05'."""
+    if not iso:
+        return None
+    from datetime import datetime, timedelta, timezone
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return dt.astimezone(timezone(timedelta(hours=8))).date().isoformat()
+
+
+def apply_details(listings: list[Listing], rows: list[dict]) -> list[Listing]:
+    """Add availability date (and study, from the agent's headline/description)."""
+    from dataclasses import replace
+    by_id = {str(r.get("listingId")): r for r in rows}
+    out = []
+    for l in listings:
+        r = by_id.get(l.listing_id)
+        if r:
+            text = " ".join(str(r.get(k) or "") for k in ("headline", "description"))
+            l = replace(l, available_from=sg_date(r.get("availableAt")), details_fetched=True,
+                        has_study=l.has_study or bool(STUDY_WORDS.search(text)),
+                        highlights=r.get("headline") or l.highlights)
+        out.append(l)
+    return out

@@ -47,6 +47,23 @@ def _save_raw(rows: list[dict]) -> None:
     path.write_text(json.dumps(clean, indent=1))
 
 
+def _add_details(sl, listings, source):
+    """Open the full PropertyGuru page of shortlisted units for the move-in date."""
+    from .collect import propertyguru as pg
+    from .collect.apify import run_actor
+    cands = [v.listing for v in sl.kept + sl.unverified if v.listing.source == "PropertyGuru"]
+    urls = [l.url for l in cands if l.url][: config.PG_DETAIL_MAX]
+    if not urls:
+        return sl, listings
+    try:
+        rows = run_actor(config.PG_ACTOR, pg.detail_input(urls))
+    except Exception as e:      # details are a bonus: never lose the shortlist over them
+        print(f"warning: could not fetch listing details ({e})")
+        return sl, listings
+    listings = pg.apply_details(listings, rows)
+    return build(listings, source), listings
+
+
 def _print_card(i: int, v) -> None:
     l = v.listing
     layout = "studio" if l.bedrooms == 0 else f"{l.bedrooms}BR" if l.bedrooms else "?BR"
@@ -126,6 +143,8 @@ def main(argv: list[str] | None = None) -> int:
             listings, outside = place(listings, Geocoder(), streets)
             dropped += outside
         sl = build(listings, source)
+        if args.live:
+            sl, listings = _add_details(sl, listings, source)
         if args.report:
             with open(args.report, "a") as fh:
                 fh.write(markdown(sl, len(rows), len(dropped), bool(args.live and args.new_only)))

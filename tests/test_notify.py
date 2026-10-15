@@ -42,3 +42,25 @@ def test_send_skips_without_config(monkeypatch):
     monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
     monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
     assert send(["hi"]) == 0
+
+
+def test_availability_from_full_page(tmp_path):
+    """Real full-page rows from 2026-10-15 (Okio 24956896, Florence 25343630)."""
+    from shortlister.collect.propertyguru import apply_details, sg_date
+    from shortlister.report import available
+    assert sg_date("2026-11-04T16:00:00.000Z") == "2026-11-05"   # midnight SGT
+    rows = [{"listingId": "24956896", "availableAt": "2026-11-04T16:00:00.000Z",
+             "headline": "Central Singapore 2 bedroom for rent"},
+            {"listingId": "24591488", "availableAt": "2026-12-04T16:00:00.000Z",
+             "headline": "1bedroom with study for rent!"},
+            {"listingId": "25343630", "headline": "Beautiful penthouse unit."}]
+    base = dict(sqft=600, bedrooms=1, source="PropertyGuru", district=12, url="u")
+    ls = [Listing("Okio", 3400, listing_id="24956896", **base),
+          Listing("Affinity At Serangoon", 3200, listing_id="24591488", **base),
+          Listing("The Florence Residences", 2999, listing_id="25343630", **base),
+          Listing("Not Opened", 2900, listing_id="1", **base)]
+    okio, aff, flo, other = apply_details(ls, rows)
+    assert available(okio) in ("5 Nov", "now") and aff.has_study
+    assert available(flo) == "not stated" and available(other) is None
+    text = "\n".join(messages(_sl(tmp_path, [okio, aff, flo, other]), new_only=True))
+    assert "📅 Available:" in text and text.count("📅") == 3

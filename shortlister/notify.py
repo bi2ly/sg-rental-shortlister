@@ -22,7 +22,7 @@ HINTS = {
 }
 
 from . import config
-from .report import SGT, _layout, _market
+from .report import SGT, _layout, _market, available
 from .shortlist import Shortlist
 
 LIMIT = 3800   # Telegram max is 4096; keep a margin
@@ -36,6 +36,9 @@ def _card(i: int, v) -> str:
         f"S${l.rent:,.0f} · {l.sqft:,.0f} sqft · S${l.psf:.2f} psf · {_layout(l)}",
         f"{_market(v)}",
     ]
+    avail = available(l)
+    if avail:
+        lines.append(f"📅 Available: {avail}")
     for f in v.flags:
         if f.startswith("no market data"):
             continue   # already said on the line above

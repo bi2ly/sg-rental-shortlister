@@ -26,6 +26,8 @@ class Listing:
     completed_year: int | None = None
     photo_count: int = 0
     posted_at: str | None = None         # ISO-8601 UTC
+    available_from: str | None = None    # YYYY-MM-DD (Singapore date), from the full listing page
+    details_fetched: bool = False        # full listing page was opened
 
     @property
     def psf(self) -> float:

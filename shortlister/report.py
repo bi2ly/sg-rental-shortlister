@@ -21,12 +21,25 @@ def _market(v) -> str:
     return f"{abs(v.vs_median_pct):.1f}% {'below' if v.vs_median_pct < 0 else 'above'} market"
 
 
+def available(l) -> str | None:
+    """'5 Nov', 'now', 'not stated', or None when the full page wasn't opened."""
+    if not l.details_fetched:
+        return None
+    if not l.available_from:
+        return "not stated"
+    d = datetime.fromisoformat(l.available_from).date()
+    today = datetime.now(SGT).date()
+    return "now" if d <= today else f"{d.day} {d:%b}" + (f" {d.year}" if d.year != today.year else "")
+
+
 def _rows(verdicts) -> list[str]:
     out = ["| # | Project | Rent | Size | S$ psf | Layout | vs market | Notes | Link |",
            "|---|---|---|---|---|---|---|---|---|"]
     for i, v in enumerate(verdicts, 1):
         l = v.listing
-        notes = "<br>".join(f.replace("|", "/") for f in v.flags) or ""
+        avail = available(l)
+        notes = "<br>".join(([f"Available: {avail}"] if avail else [])
+                            + [f.replace("|", "/") for f in v.flags])
         out.append(f"| {i} | **{l.project}** (D{l.district}) | S${l.rent:,.0f} | {l.sqft:,.0f} sqft "
                    f"| {l.psf:.2f} | {_layout(l)} | {_market(v)} | {notes} "
                    f"| [{l.source}]({l.url}) |")
