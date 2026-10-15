@@ -58,6 +58,8 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
     # --- budget & size rules from SPEC ----------------------------------------
     if listing.sqft < config.MIN_SQFT:
         v.reasons.append(f"rejected: under {config.MIN_SQFT} sqft")
+    elif config.REJECT_STUDIOS and listing.bedrooms == 0:
+        v.reasons.append("rejected: studio (no separate bedroom)")
     elif listing.rent > config.MAX_RENT:
         v.reasons.append(f"rejected: over S${config.MAX_RENT:,} max budget")
     elif listing.rent <= config.TARGET_RENT:
@@ -72,6 +74,10 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
         v.reasons.append(f"rejected: above S${config.TARGET_RENT:,} target and not below market")
     else:
         v.reasons.append(f"not kept: above S${config.TARGET_RENT:,} target and good deal can't be confirmed")
+
+    if (listing.bedrooms == 1 and not listing.has_study
+            and listing.sqft < config.STUDIO_CHECK_SQFT):
+        v.flags.append("small for a 1-bedroom: check the floor plan, it may be a studio")
 
     v.decision = v.reasons[-1]
     if listing.has_study:

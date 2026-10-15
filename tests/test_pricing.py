@@ -91,3 +91,16 @@ def test_no_data_project(source):
 def test_low_contract_count_flag(source):
     v = evaluate(Listing("18 Woodsville", 2900, 550), source)
     assert any("only 10 contracts" in f for f in v.flags)
+
+
+def test_studio_rejected(source):
+    v = evaluate(Listing("26 Newton", 2900, 600, bedrooms=0), source)
+    assert not v.keep and "studio" in v.decision
+
+
+def test_small_one_bedroom_flagged(source):
+    # Lumiere case: 506 sqft studio listed as 1BR
+    v = evaluate(Listing("26 Newton", 2900, 506, bedrooms=1), source)
+    assert any("may be a studio" in f for f in v.flags)
+    roomy = evaluate(Listing("26 Newton", 2900, 600, bedrooms=1), source)
+    assert not any("may be a studio" in f for f in roomy.flags)

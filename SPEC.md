@@ -14,7 +14,7 @@ tenancy documents. The final choice always stays with me.
 | Location | Within **25 minutes off-peak driving** to Tanglin |
 | Budget | Target **S$3,000/month**; up to **S$3,500** only if it is a "good deal" |
 | Size | Minimum **500 sqft** |
-| Layout | 1 bedroom minimum; **1 bedroom + study** preferred (ranked higher) |
+| Layout | 1 bedroom minimum with a **separate bedroom** (no studios); **1 bedroom + study** preferred (ranked higher) |
 | Condition | Well maintained (see scoring below) |
 
 ## Definition of a "good deal"
@@ -71,6 +71,7 @@ The URA access key is stored in a local `.env` file and is **never committed**.
 | Layout | 1 bedroom + study gets a bonus |
 | Build year | Newer projects rank higher |
 | Listing quality | Renovation mentioned, multiple photos → bonus |
+| Possible studio | 1-bedroom under 550 sqft without a study → "check the floor plan" (agents sometimes list studios as 1BR) |
 | Red flags | No photos, rent suspiciously far below market (possible bait), stale listing → flagged |
 
 ## Output format
