@@ -28,32 +28,56 @@ from .shortlist import Shortlist
 LIMIT = 3800   # Telegram max is 4096; keep a margin
 
 
+AT_MARKET_PCT = 3        # within ±3% of the median counts as "at market"
+UNVERIFIED_MAX = 10      # cards shown in "Needs a price check"; the rest in the report
+
+
+def verdict(v) -> str:
+    """'🟢 13% below market (small sample)', '🟡 at market', '🔴 8% above market', '⚪ no market data'."""
+    if v.vs_median_pct is None:
+        return "⚪ no market data"
+    pct = v.vs_median_pct
+    if abs(pct) <= AT_MARKET_PCT:
+        text = f"🟡 at market ({pct:+.0f}%)"
+    elif pct < 0:
+        text = f"🟢 {abs(pct):.0f}% below market"
+    else:
+        text = f"🔴 {pct:.0f}% above market"
+    if v.benchmark and v.benchmark.contracts < config.LOW_CONFIDENCE_CONTRACTS:
+        text += " (small sample)"
+    return text
+
+
 def _card(i: int, v) -> str:
     l = v.listing
     e = html.escape
-    lines = [
-        f"<b>{i}. {e(l.project)}</b>",
-    ]
+    title = f"<b>{i}. {e(l.project)}</b>"
+    lines = [f"<a href=\"{e(l.url)}\">{title}</a>" if l.url else title]
     if area(l):
         lines.append(f"📍 {e(area(l))}")
     if mrt(l):
         lines.append(f"🚇 {e(mrt(l))}")
     lines += [
-        f"S${l.rent:,.0f} · {size(l)} · S${l.psf:.2f} psf · {_layout(l)}",
-        f"{_market(v)}",
+        f"💰 S${l.rent:,.0f}/mo · {_layout(l)}",
+        f"📐 {size(l)} · S${l.psf:.2f} psf",
+        verdict(v),
     ]
     avail = available(l)
     if avail:
         lines.append(f"📅 Available: {avail}")
+    headline_is_real = l.details_fetched or l.source == "99.co"
+    if headline_is_real and l.highlights:
+        lines.append(f"<i>\"{e(l.highlights.strip()[:90])}\"</i>")
     for f in v.flags:
-        if f.startswith("no market data"):
-            continue   # already said on the line above
+        if f.startswith(("no market data", "benchmark based on only")):
+            continue   # shown in the verdict line
         if "same unit also listed" in f:
             text, _, url = f.rpartition(": ")
             lines.append(f"⚠️ {e(text)}: <a href=\"{e(url)}\">other listing</a>")
         else:
             lines.append(f"⚠️ {e(f)}")
-    lines.append(f"<a href=\"{e(l.url)}\">Open on {e(l.source)}</a>")
+    if l.source != "PropertyGuru":
+        lines.append(f"<i>from {e(l.source)}</i>")
     return "\n".join(lines)
 
 
@@ -72,7 +96,10 @@ def messages(sl: Shortlist, new_only: bool) -> list[str]:
     if sl.unverified:
         blocks.append(f"<b>🔎 Needs a price check</b> (S${config.TARGET_RENT:,}-{config.MAX_RENT:,}, "
                       "no market data yet)")
-        blocks += [_card(i, v) for i, v in enumerate(sl.unverified, 1)]
+        blocks += [_card(i, v) for i, v in enumerate(sl.unverified[:UNVERIFIED_MAX], 1)]
+        extra = len(sl.unverified) - UNVERIFIED_MAX
+        if extra > 0:
+            blocks.append(f"…and {extra} more: see today's report in GitHub (Actions → Daily shortlist).")
     out, cur = [], head
     for b in blocks:
         if len(cur) + len(b) + 2 > LIMIT:

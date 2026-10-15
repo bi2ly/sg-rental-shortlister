@@ -86,3 +86,25 @@ def test_mrt_walk_size_and_card(tmp_path):
     assert "🚇 Boon Keng MRT · ~" in text and "592 sqft (55 sqm)" in text
     assert text.count("📍 Balestier / Toa Payoh") == 2      # shown with and without MRT
     assert "📍 Balestier / Toa Payoh" in text and "(D12)" not in text
+
+
+def test_card_layout_v2(tmp_path):
+    from shortlister.notify import UNVERIFIED_MAX
+    cache = tmp_path / "c.json"
+    cache.write_text(json.dumps({"fetched_at": time.time(), "records": [
+        {"qtr": "2026-Q2", "project_name": "OKIO", "postal_district": "12", "25th_percentile": "5.9",
+         "median": "6.61", "75th_percentile": "7.0", "rental_contracts": "13"}]}))
+    okio = Listing("Okio", 3400, 592, bedrooms=2, district=12, source="PropertyGuru", listing_id="1",
+                   url="https://pg/okio", lat=1.32, lng=103.85, details_fetched=True,
+                   highlights="Central Singapore 2 bedroom for rent", area="Balestier / Toa Payoh")
+    many = [Listing(f"Boutique {i}", 3200, 600, bedrooms=1, source="PropertyGuru", url=f"u{i}",
+                    listing_id=str(100 + i), lat=1.3, lng=103.8) for i in range(15)]
+    sl = build([okio] + many, DataGovSource(cache_path=cache))
+    text = "\n".join(messages(sl, new_only=True))
+    assert '<a href="https://pg/okio"><b>1. Okio</b></a>' in text
+    assert "💰 S$3,400/mo · 2BR" in text and "📐 592 sqft (55 sqm) · S$5.74 psf" in text
+    assert "🟢 13% below market (small sample)" in text
+    assert "<i>\"Central Singapore 2 bedroom for rent\"</i>" in text
+    assert "benchmark based on" not in text and "Open on" not in text
+    assert f"…and {15 - UNVERIFIED_MAX} more" in text
+    assert text.count("⚪ no market data") == UNVERIFIED_MAX
