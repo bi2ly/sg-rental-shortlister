@@ -59,7 +59,13 @@ class DataGovSource:
     def benchmarks(self) -> dict[str, Benchmark]:
         if self._benchmarks is None:
             if not self.cache_path.exists() or self._cache_age_days() > CACHE_MAX_AGE_DAYS:
-                self.refresh()
+                try:
+                    self.refresh()
+                except OSError as e:   # site down / blocked: use stale data if any
+                    print(f"warning: could not refresh data.gov.sg rents ({e})")
+                    if not self.cache_path.exists():
+                        self._benchmarks = {}
+                        return self._benchmarks
             records = json.loads(self.cache_path.read_text())["records"]
             self._benchmarks = build_benchmarks(records, source=self.name)
         return self._benchmarks

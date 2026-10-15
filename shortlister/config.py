@@ -37,7 +37,7 @@ AREA_KEYWORDS = [
 PG_ACTOR = "automation-lab/propertyguru-singapore-listings-agent-leads-scraper"
 PG_MAX_PAGES_PER_AREA = 3
 PG_KEEP_TYPES = {"CONDO", "APT", "EXEC"}   # drop HDB, walk-ups, landed
-MAX_RESULTS_PER_RUN = 300            # across all areas
+MAX_RESULTS_PER_RUN = 500            # across all areas (~US$0.50 for a full sweep)
 MAX_COST_USD_PER_RUN = 1.0           # hard spending cap sent to Apify (minimum allowed)
 
 # 99.co is now secondary (about 10x the price of PropertyGuru per listing).

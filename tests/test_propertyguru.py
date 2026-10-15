@@ -102,3 +102,14 @@ def test_price_difference_noted_only_when_prices_differ():
     assert price_differences(pg, [pg, nn_same]) == []
     notes = price_differences(pg, [pg, nn_same, nn_dear])
     assert len(notes) == 1 and "S$3,600 on 99.co (S$+200)" in notes[0] and "nn2" in notes[0]
+
+
+def test_markdown_report(pg_rows, tmp_path):
+    from shortlister.report import markdown
+    listings, dropped, _ = normalise(pg_rows)
+    cache = tmp_path / "r.json"
+    cache.write_text(json.dumps({"fetched_at": time.time(), "records": []}))
+    sl = build(listings, DataGovSource(cache_path=cache))
+    md = markdown(sl, len(pg_rows), len(dropped), new_only=True)
+    assert md.startswith("# Condo shortlist") and "new listings since the last run" in md
+    assert "[PropertyGuru](https://www.propertyguru.com.sg/listing/" in md

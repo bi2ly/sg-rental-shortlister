@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -52,21 +53,45 @@ def ninetynine_input(max_results: int = 60) -> dict:
 search_input = ninetynine_input
 
 
+API = "https://api.apify.com/v2"
+
+
+def _call(method: str, url: str, token: str, body: dict | None = None, timeout: int = 90):
+    req = urllib.request.Request(
+        url, method=method,
+        data=json.dumps(body).encode() if body is not None else None,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.load(resp)
+
+
 def run_actor(actor: str, actor_input: dict, token: str | None = None,
-              max_cost_usd: float = config.MAX_COST_USD_PER_RUN) -> list[dict]:
+              max_cost_usd: float = config.MAX_COST_USD_PER_RUN,
+              max_minutes: int = 20) -> list[dict]:
+    """Start the actor, wait for it, return its dataset items.
+
+    Uses an asynchronous run (the synchronous endpoint gives up after 5 minutes,
+    and a full sweep of all areas can take longer).
+    """
     token = token or os.environ.get("APIFY_TOKEN")
     if not token:
         raise SystemExit("APIFY_TOKEN is not set. Put it in the .env file (see .env.example).")
-    actor_path = actor.replace("/", "~")
-    query = urllib.parse.urlencode({"maxTotalChargeUsd": max_cost_usd, "timeout": 600})
-    req = urllib.request.Request(
-        f"https://api.apify.com/v2/acts/{actor_path}/run-sync-get-dataset-items?{query}",
-        data=json.dumps(actor_input).encode(),
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=620) as resp:
-        return json.load(resp)
+    q = urllib.parse.urlencode({"maxTotalChargeUsd": max_cost_usd, "timeout": max_minutes * 60})
+    run = _call("POST", f"{API}/acts/{actor.replace('/', '~')}/runs?{q}", token, actor_input)["data"]
+    deadline = time.time() + max_minutes * 60 + 120
+    while run["status"] in ("READY", "RUNNING") and time.time() < deadline:
+        run = _call("GET", f"{API}/actor-runs/{run['id']}?waitForFinish=60", token)["data"]
+    if run["status"] not in ("SUCCEEDED", "TIMED-OUT", "ABORTED"):
+        raise RuntimeError(f"Apify run {run['id']} ended with status {run['status']}")
+    items, offset = [], 0
+    while True:   # page through the dataset; partial results are still useful
+        page = _call("GET", f"{API}/datasets/{run['defaultDatasetId']}/items"
+                            f"?clean=true&format=json&limit=1000&offset={offset}", token)
+        items += page
+        if len(page) < 1000:
+            return items
+        offset += 1000
 
 
 def run_live(source: str = "propertyguru", since: str | None = None, **kw) -> list[dict]:

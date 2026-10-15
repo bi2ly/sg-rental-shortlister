@@ -13,13 +13,14 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import config
 from .collect import load_file, normalise as normalise_rows, run_live
 from .env import load_env
 from .geo import Geocoder, place
+from .report import markdown
 from .models import Listing
 from .pricing import DataGovSource, evaluate
 from .pricing.matching import normalise
@@ -99,6 +100,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="PropertyGuru: only listings posted since the last live run")
     co.add_argument("--no-geo", action="store_true", help="skip OneMap lookups (offline)")
     co.add_argument("--show-skipped", action="store_true")
+    co.add_argument("--report", help="also write a Markdown report to this file (appends)")
 
     args = p.parse_args(argv)
     load_env()
@@ -111,7 +113,8 @@ def main(argv: list[str] | None = None) -> int:
             for s in sources:
                 since = state.get("last_run", {}).get(s) if args.new_only else None
                 rows += run_live(s, since=since)
-                state.setdefault("last_run", {})[s] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+                state.setdefault("last_run", {})[s] = (
+                    datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
             _save_raw(rows)
             _save_state(state)
         else:
@@ -121,6 +124,9 @@ def main(argv: list[str] | None = None) -> int:
             listings, outside = place(listings, Geocoder(), streets)
             dropped += outside
         sl = build(listings, source)
+        if args.report:
+            with open(args.report, "a") as fh:
+                fh.write(markdown(sl, len(rows), len(dropped), bool(args.live and args.new_only)))
         print(f"{len(rows)} listings collected | {len(dropped)} removed (rooms, HDB/walk-ups, outside area) | "
               f"{sl.duplicates_removed} duplicates removed | "
               f"{len(sl.kept)} shortlisted | {len(sl.unverified)} need a price check | "

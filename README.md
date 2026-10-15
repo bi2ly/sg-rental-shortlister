@@ -86,6 +86,22 @@ studios as 1-bedrooms (minimum size raised to 550 sqft, 500 with a study);
 99.co's own listing URLs 404, so links use `99.co/property/<id>`; PropertyGuru
 card data has no coordinates, so buildings are located with OneMap.
 
+## Daily run on GitHub (no server needed)
+
+`.github/workflows/daily-shortlist.yml` runs every day at **07:47 Singapore time**
+on GitHub's machines: it collects PropertyGuru listings posted since the last
+run, filters and price-checks them, and shows the shortlist on the run's page
+(**Actions** tab -> *Daily shortlist* -> latest run). The report is also kept as
+a downloadable file for 30 days.
+
+Setup: add your Apify token as a repository secret named `APIFY_TOKEN`
+(Settings -> Secrets and variables -> Actions -> New repository secret).
+To run it now, open *Daily shortlist* in the Actions tab and click **Run workflow**
+(untick "Only listings posted since the last run" for a full sweep).
+
+State between runs (last run time, building coordinates, market rents) is kept
+in GitHub's cache, not committed, since the repo is public.
+
 Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 
 ## Status
@@ -97,6 +113,7 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 - [x] Listing collection (99.co via Apify): room filter, dedupe, ranked shortlist
 - [x] PropertyGuru as main source, cross-site duplicate merge
 - [x] Search-area filter (OneMap building coordinates)
+- [x] Daily run on GitHub Actions (07:47 SGT)
 - [ ] Telegram bot: daily shortlist + on-demand search
 
 ## Disclaimer
