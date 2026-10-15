@@ -19,13 +19,20 @@ def size(l) -> str:
     return f"{l.sqft:,.0f} sqft ({l.sqft * 0.092903:,.0f} sqm)"
 
 
+def area(l) -> str:
+    """Area name, else the district."""
+    return l.area or (f"District {l.district}" if l.district else "")
+
+
+def mrt(l) -> str:
+    """'Boon Keng MRT · ~6 min walk', or '' when no MRT is known."""
+    if not l.mrt_name:
+        return ""
+    return l.mrt_name + (f" · ~{l.mrt_walk_min} min walk" if l.mrt_walk_min else "")
+
+
 def where(l) -> str:
-    """'Boon Keng MRT · ~6 min walk', else the area name, else the district."""
-    if l.mrt_name:
-        return l.mrt_name + (f" · ~{l.mrt_walk_min} min walk" if l.mrt_walk_min else "")
-    if l.area:
-        return l.area
-    return f"District {l.district}" if l.district else ""
+    return " · ".join(x for x in (area(l), mrt(l)) if x)
 
 
 def _market(v) -> str:

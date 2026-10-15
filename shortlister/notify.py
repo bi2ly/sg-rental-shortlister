@@ -22,7 +22,7 @@ HINTS = {
 }
 
 from . import config
-from .report import SGT, _layout, _market, available, size, where
+from .report import SGT, _layout, _market, area, available, mrt, size
 from .shortlist import Shortlist
 
 LIMIT = 3800   # Telegram max is 4096; keep a margin
@@ -33,7 +33,12 @@ def _card(i: int, v) -> str:
     e = html.escape
     lines = [
         f"<b>{i}. {e(l.project)}</b>",
-        f"🚇 {e(where(l))}" if l.mrt_name else f"📍 {e(where(l))}",
+    ]
+    if area(l):
+        lines.append(f"📍 {e(area(l))}")
+    if mrt(l):
+        lines.append(f"🚇 {e(mrt(l))}")
+    lines += [
         f"S${l.rent:,.0f} · {size(l)} · S${l.psf:.2f} psf · {_layout(l)}",
         f"{_market(v)}",
     ]

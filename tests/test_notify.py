@@ -84,4 +84,5 @@ def test_mrt_walk_size_and_card(tmp_path):
                     listing_id="2", area="Balestier / Toa Payoh")
     text = "\n".join(messages(_sl(tmp_path, [okio, noMrt]), new_only=True))
     assert "🚇 Boon Keng MRT · ~" in text and "592 sqft (55 sqm)" in text
+    assert text.count("📍 Balestier / Toa Payoh") == 2      # shown with and without MRT
     assert "📍 Balestier / Toa Payoh" in text and "(D12)" not in text
