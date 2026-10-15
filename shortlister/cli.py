@@ -57,7 +57,9 @@ def _add_details(sl, listings, source):
     """Open the full PropertyGuru page of shortlisted units for the move-in date."""
     from .collect import propertyguru as pg
     from .collect.apify import run_actor
-    cands = [v.listing for v in sl.kept + sl.unverified if v.listing.source == "PropertyGuru"]
+    from .notify import UNVERIFIED_MAX
+    shown = sl.kept + sl.unverified[:UNVERIFIED_MAX]          # exactly the cards sent
+    cands = [v.listing for v in shown if v.listing.source == "PropertyGuru"]
     urls = [l.url for l in cands if l.url][: config.PG_DETAIL_MAX]
     if not urls:
         return sl, listings

@@ -40,7 +40,7 @@ AREA_KEYWORDS = [
 PG_ACTOR = "automation-lab/propertyguru-singapore-listings-agent-leads-scraper"
 PG_MAX_PAGES_PER_AREA = 15          # 20 listings/page; enough for every district
 PG_KEEP_TYPES = {"CONDO", "CON", "APT", "EXCON", "EXEC"}   # drop HDB, walk-ups, landed
-PG_DETAIL_MAX = 40                   # full pages opened per run (shortlisted units only)
+PG_DETAIL_MAX = 80                   # full pages opened per run (only the cards sent to you)
 MAX_RESULTS_PER_RUN = 2000           # full sweep; PropertyGuru filters keep it to a few hundred
 MAX_COST_USD_PER_RUN = 2.0           # hard spending cap per Apify run
 
