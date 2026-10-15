@@ -11,7 +11,15 @@ from __future__ import annotations
 import html
 import json
 import os
+import urllib.error
 import urllib.request
+
+HINTS = {
+    401: "the bot token is wrong: check the TELEGRAM_BOT_TOKEN secret (whole string, no spaces)",
+    404: "the bot token is wrong: check the TELEGRAM_BOT_TOKEN secret (whole string, no spaces)",
+    400: "check TELEGRAM_CHAT_ID (just the number from @userinfobot) and that you pressed Start in the bot",
+    403: "the bot is not allowed to message you: open the bot in Telegram and press Start",
+}
 
 from . import config
 from .report import SGT, _layout, _market
@@ -68,8 +76,8 @@ def messages(sl: Shortlist, new_only: bool) -> list[str]:
 
 
 def send(texts: list[str], token: str | None = None, chat_id: str | None = None) -> int:
-    token = token or os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = chat_id or os.environ.get("TELEGRAM_CHAT_ID")
+    token = (token or os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    chat_id = (chat_id or os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     if not (token and chat_id):
         print("Telegram not configured (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID); skipping.")
         return 0
@@ -78,7 +86,15 @@ def send(texts: list[str], token: str | None = None, chat_id: str | None = None)
                            "disable_web_page_preview": True}).encode()
         req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
                                      data=body, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            if not json.load(resp).get("ok"):
-                raise RuntimeError("Telegram refused the message")
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                json.load(resp)
+        except urllib.error.HTTPError as e:
+            try:
+                detail = json.load(e).get("description", "")
+            except ValueError:
+                detail = ""
+            msg = f"Telegram error {e.code}: {detail}. Hint: {HINTS.get(e.code, 'see the message above')}"
+            print(f"::error::{msg}")          # shows as an annotation on the GitHub run
+            raise SystemExit(msg) from None
     return len(texts)
