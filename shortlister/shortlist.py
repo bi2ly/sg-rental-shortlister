@@ -39,9 +39,9 @@ def score(v: Verdict) -> float:
         s -= 5                           # unknown price: small penalty
     if l.has_study:
         s += 5
-    if l.completed_year:
-        s += max(0, min(l.completed_year - 2000, 24)) / 4   # newer, up to +6
-    if l.photo_count < 3:
+    # Build year is not scored (decided 2026-10-15: buildings are generally well
+    # maintained, and PropertyGuru card data has no build year).
+    if l.photo_count == 0:      # PropertyGuru cards only expose a thumbnail
         s -= 5
     if any("suspiciously cheap" in f for f in v.flags):
         s -= 10
@@ -55,6 +55,8 @@ def build(listings: list[Listing], source: BenchmarkSource) -> Shortlist:
         v = evaluate(l, source)
         if l.photo_count == 0:
             v.flags.append("no photos")
+        if l.lat is None:
+            v.flags.append("location not found: check the area yourself")
         if l.completed_year and l.completed_year < date.today().year - 25:
             v.flags.append(f"older building (completed {l.completed_year})")
         if v.keep:

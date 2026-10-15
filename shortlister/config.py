@@ -19,8 +19,28 @@ LOW_CONFIDENCE_CONTRACTS = 15
 # How many recent quarters of data to combine per project.
 QUARTERS_TO_USE = 4
 
-# --- Listing search (Apify 99.co scraper) ------------------------------------
-ANCHOR_LATLNG = (1.3048, 103.8237)   # Tanglin Mall
-SEARCH_RADIUS_M = 8000               # rough stand-in for 25 min off-peak drive
-MAX_RESULTS_PER_RUN = 60             # scraper is billed per listing returned
-MAX_COST_USD_PER_RUN = 1.0           # hard spending cap sent to Apify
+# --- Search area --------------------------------------------------------------
+# From the map agreed on 2026-10-15: West Coast/Queenstown to Bedok/East Coast,
+# Harbourfront to Ang Mo Kio. Replaces the earlier drive-time idea.
+AREA_BBOX = {"lat_min": 1.262, "lat_max": 1.380, "lng_min": 103.765, "lng_max": 103.935}
+
+# PropertyGuru only searches by area name, so one search per area below.
+AREA_KEYWORDS = [
+    "Tanglin", "River Valley", "Orchard", "Botanic Gardens", "Bukit Timah", "Farrer Road",
+    "Holland", "Queenstown", "Commonwealth", "West Coast", "Bukit Merah", "Tiong Bahru",
+    "Harbourfront", "Novena", "Newton", "Balestier", "Toa Payoh", "Bishan", "Ang Mo Kio",
+    "Serangoon", "Whampoa", "Kallang", "Geylang", "Katong", "Marine Parade", "East Coast",
+    "Siglap", "Bedok", "Tanjong Pagar", "City Hall",
+]
+
+# --- Listing sources (Apify) -----------------------------------------------------
+PG_ACTOR = "automation-lab/propertyguru-singapore-listings-agent-leads-scraper"
+PG_MAX_PAGES_PER_AREA = 3
+PG_KEEP_TYPES = {"CONDO", "APT", "EXEC"}   # drop HDB, walk-ups, landed
+MAX_RESULTS_PER_RUN = 300            # across all areas
+MAX_COST_USD_PER_RUN = 1.0           # hard spending cap sent to Apify (minimum allowed)
+
+# 99.co is now secondary (about 10x the price of PropertyGuru per listing).
+NINETYNINE_ACTOR = "sian.agency/99co-property-scraper"
+ANCHOR_LATLNG = (1.3048, 103.8237)   # Tanglin Mall, centre of the 99.co radius search
+SEARCH_RADIUS_M = 9000

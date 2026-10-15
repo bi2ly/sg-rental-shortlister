@@ -3,6 +3,9 @@
     python -m shortlister refresh
     python -m shortlister price "Loft @ Nathan" --rent 3200 --sqft 550 --study
     python -m shortlister lookup "nathan"
+    python -m shortlister collect --live                      # PropertyGuru (default)
+    python -m shortlister collect --live --source all         # + 99.co (pricier)
+    python -m shortlister collect --file pg.json 99co.json    # from Apify exports
 """
 
 from __future__ import annotations
@@ -16,18 +19,29 @@ from pathlib import Path
 from . import config
 from .collect import load_file, normalise as normalise_rows, run_live
 from .env import load_env
+from .geo import Geocoder, place
 from .models import Listing
 from .pricing import DataGovSource, evaluate
 from .pricing.matching import normalise
 from .shortlist import build, score
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "listings"
+STATE = Path(__file__).resolve().parents[1] / "data" / "state.json"
+
+
+def _state() -> dict:
+    return json.loads(STATE.read_text()) if STATE.exists() else {}
+
+
+def _save_state(state: dict) -> None:
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    STATE.write_text(json.dumps(state, indent=1))
 
 
 def _save_raw(rows: list[dict]) -> None:
     """Keep each live run (without agent personal data) for later comparisons."""
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    clean = [{k: v for k, v in r.items() if k != "agent"} for r in rows]
+    clean = [{k: v for k, v in r.items() if k not in ("agent", "agency")} for r in rows]
     path = RAW_DIR / f"{datetime.now():%Y-%m-%d_%H%M}.json"
     path.write_text(json.dumps(clean, indent=1))
 
@@ -39,7 +53,8 @@ def _print_card(i: int, v) -> None:
         layout += " + study"
     market = (f"{abs(v.vs_median_pct):.1f}% {'below' if v.vs_median_pct < 0 else 'above'} market"
               if v.vs_median_pct is not None else "no market data")
-    print(f"\n{i}. {l.project} (D{l.district}, built {l.completed_year or '?'})  score {score(v)}")
+    built = f", built {l.completed_year}" if l.completed_year else ""
+    print(f"\n{i}. {l.project} (D{l.district}{built}, {l.source})  score {score(v)}")
     print(f"   S${l.rent:,.0f} | {l.sqft:,.0f} sqft | S${l.psf:.2f} psf | {layout} | {market}")
     if l.highlights:
         print(f"   \"{l.highlights.strip()[:90]}\"")
@@ -75,11 +90,14 @@ def main(argv: list[str] | None = None) -> int:
     lk = sub.add_parser("lookup", help="search project names in the market data")
     lk.add_argument("text")
 
-    co = sub.add_parser("collect", help="collect 99.co listings and print the ranked shortlist")
+    co = sub.add_parser("collect", help="collect listings and print the ranked shortlist")
     src = co.add_mutually_exclusive_group(required=True)
-    src.add_argument("--file", help="JSON export of an Apify run")
-    src.add_argument("--live", action="store_true", help="run the Apify scraper now (costs money)")
-    co.add_argument("--max-results", type=int, default=config.MAX_RESULTS_PER_RUN)
+    src.add_argument("--file", nargs="+", help="JSON export(s) of Apify runs (any source)")
+    src.add_argument("--live", action="store_true", help="run the Apify scrapers now (costs money)")
+    co.add_argument("--source", choices=["propertyguru", "99co", "all"], default="propertyguru")
+    co.add_argument("--new-only", action="store_true",
+                    help="PropertyGuru: only listings posted since the last live run")
+    co.add_argument("--no-geo", action="store_true", help="skip OneMap lookups (offline)")
     co.add_argument("--show-skipped", action="store_true")
 
     args = p.parse_args(argv)
@@ -87,12 +105,23 @@ def main(argv: list[str] | None = None) -> int:
     source = DataGovSource()
 
     if args.cmd == "collect":
-        rows = run_live(max_results=args.max_results) if args.live else load_file(args.file)
         if args.live:
+            state, rows = _state(), []
+            sources = ["propertyguru", "99co"] if args.source == "all" else [args.source]
+            for s in sources:
+                since = state.get("last_run", {}).get(s) if args.new_only else None
+                rows += run_live(s, since=since)
+                state.setdefault("last_run", {})[s] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
             _save_raw(rows)
-        listings, dropped = normalise_rows(rows)
+            _save_state(state)
+        else:
+            rows = [r for f in args.file for r in load_file(f)]
+        listings, dropped, streets = normalise_rows(rows)
+        if not args.no_geo:
+            listings, outside = place(listings, Geocoder(), streets)
+            dropped += outside
         sl = build(listings, source)
-        print(f"{len(rows)} listings collected | {len(dropped)} room/invalid removed | "
+        print(f"{len(rows)} listings collected | {len(dropped)} removed (rooms, HDB/walk-ups, outside area) | "
               f"{sl.duplicates_removed} duplicates removed | "
               f"{len(sl.kept)} shortlisted | {len(sl.unverified)} need a price check | "
               f"{len(sl.skipped)} skipped")

@@ -5,7 +5,7 @@ A personal tool that helps find a condo to rent in Singapore.
 It does **not** make decisions or handle tenancy paperwork. It works as a
 **shortlister and pricing assistant**:
 
-- Collects rental listings matching my criteria (drive time, budget, size, layout)
+- Collects rental listings matching my criteria (area, budget, size, layout)
 - Compares each asking rent against actual signed rental contracts
 - Flags listings as fairly priced, above market, or suspiciously cheap
 - Removes duplicate listings posted by multiple agents
@@ -55,32 +55,36 @@ Contract-level URA data will refine this once the URA access key is available.
 
 ## Usage (listing collector)
 
-Collects condo rentals from 99.co through the
-[sian.agency 99.co scraper](https://apify.com/sian.agency/99co-property-scraper)
-on Apify, removes room rentals and duplicates, price-checks every unit and
-prints a ranked shortlist.
+Collects condo rentals through Apify scrapers, removes rooms, walk-ups, HDB,
+studios and duplicates, keeps only listings inside the search area, price-checks
+every unit and prints a ranked shortlist with direct links.
+
+| Source | Apify actor | Approx. cost |
+|---|---|---|
+| PropertyGuru (main) | automation-lab/propertyguru-singapore-listings-agent-leads-scraper | ~US$1-2 / 1,000 listings |
+| 99.co (optional) | sian.agency/99co-property-scraper | ~US$12 / 1,000 listings |
 
 ```bash
 cp .env.example .env          # then paste your Apify token into .env
 
-# From a JSON export of an Apify run (free, no token needed)
-python -m shortlister collect --file my_export.json --show-skipped
-
-# Live run (costs money; capped at US$1 per run in shortlister/config.py)
-python -m shortlister collect --live
+python -m shortlister collect --live                     # PropertyGuru
+python -m shortlister collect --live --new-only          # only listings since last run
+python -m shortlister collect --live --source all        # PropertyGuru + 99.co
+python -m shortlister collect --file pg.json 99co.json   # from Apify JSON exports
 ```
+
+Every live run is capped at US$1 (Apify's minimum cap). Search areas and the
+map bounding box live in `shortlister/config.py`.
 
 The shortlist has three sections:
 - **Shortlist**: meets the spec (within S$3,000, or S$3,000-3,500 and below market)
 - **Needs price check**: S$3,000-3,500 but the project has no market data yet
-  (common for small boutique condos until URA contract data is added)
 - **Skipped** (with `--show-skipped`): rejected, with the reason
 
-Notes from the first real export: 99.co mixes room rentals into condo results
-(showing the whole unit's size with a room price); they are removed using the
-"room" label, the listing text, and an implausibly low price per sqft.
-The scraper has no full description without paid enrichment, so a study is
-detected only from the title and highlight line.
+Lessons from real data: 99.co mixes room rentals into condo results; agents list
+studios as 1-bedrooms (minimum size raised to 550 sqft, 500 with a study);
+99.co's own listing URLs 404, so links use `99.co/property/<id>`; PropertyGuru
+card data has no coordinates, so buildings are located with OneMap.
 
 Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 
@@ -91,7 +95,8 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 - [x] Pricing engine (data.gov.sg benchmarks)
 - [ ] URA contract-level data (waiting for access key)
 - [x] Listing collection (99.co via Apify): room filter, dedupe, ranked shortlist
-- [ ] Drive-time filter (≤25 min off-peak to Tanglin)
+- [x] PropertyGuru as main source, cross-site duplicate merge
+- [x] Search-area filter (OneMap building coordinates)
 - [ ] Telegram bot: daily shortlist + on-demand search
 
 ## Disclaimer

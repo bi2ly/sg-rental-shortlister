@@ -30,7 +30,7 @@ def source(tmp_path):
 
 
 def test_room_rentals_removed(rows):
-    listings, dropped = normalise(rows)
+    listings, dropped, _ = normalise(rows)
     dropped_names = {name for name, _ in dropped}
     # labelled "room" by 99.co, and Sunglade which is only given away by its text
     assert {"Villa Azura", "Studios @ Marne", "Sunglade", "Pandan Valley"} <= dropped_names
@@ -38,7 +38,7 @@ def test_room_rentals_removed(rows):
 
 
 def test_fields_mapped(rows):
-    listings, _ = normalise(rows)
+    listings, _, _ = normalise(rows)
     okio = next(l for l in listings if l.listing_id == "jSBrpCsTCpS5CLVVYQFKUH")
     assert (okio.rent, okio.sqft, okio.bedrooms, okio.completed_year) == (3400, 592, 2, 2015)
     assert okio.district == 12 and okio.lat and okio.lng
@@ -47,21 +47,21 @@ def test_fields_mapped(rows):
 
 
 def test_study_and_one_bedder_detection(rows):
-    listings, _ = normalise(rows)
+    listings, _, _ = normalise(rows)
     by = {l.project: l for l in listings}
     assert by["Riviera 38"].has_study
     assert by["Newest"].bedrooms == 1      # tagged 0 but text says "1 bedder"
 
 
 def test_duplicates_keep_cheapest(rows):
-    listings, _ = normalise(rows)
+    listings, _, _ = normalise(rows)
     unique, removed = dedupe(listings)
     okio = [l for l in unique if l.project == "Okio"]
     assert removed == 1 and len(okio) == 1 and okio[0].rent == 3300
 
 
 def test_shortlist_buckets(rows, source):
-    listings, _ = normalise(rows)
+    listings, _, _ = normalise(rows)
     sl = build(listings, source)
     kept = {v.listing.project for v in sl.kept}
     unverified = {v.listing.project for v in sl.unverified}

@@ -1,7 +1,7 @@
-"""Run the 99.co scraper on Apify, or load a JSON export of a previous run.
+"""Run listing scrapers on Apify, or load a JSON export of a previous run.
 
-The scraper charges per listing returned, so every live run carries a hard
-spending cap (config.MAX_COST_USD_PER_RUN) passed to Apify.
+Every live run carries a hard spending cap (config.MAX_COST_USD_PER_RUN).
+PropertyGuru is the main source; 99.co is optional and ~10x pricier per listing.
 """
 
 from __future__ import annotations
@@ -14,12 +14,24 @@ from pathlib import Path
 
 from .. import config
 
-ACTOR_ID = "sian.agency~99co-property-scraper"
-RUN_SYNC_URL = f"https://api.apify.com/v2/acts/{ACTOR_ID}/run-sync-get-dataset-items"
+
+def propertyguru_input(max_items: int = config.MAX_RESULTS_PER_RUN, since: str | None = None) -> dict:
+    """One keyword search per area; price filter server-side, the rest in our code."""
+    inp = {
+        "searchType": "rent",
+        "keywords": config.AREA_KEYWORDS,
+        "maxPrice": config.MAX_RENT,
+        "minBedrooms": 1,
+        "scrapeDetails": False,          # card mode: cheap, enough fields
+        "maxItems": max_items,
+        "maxPages": config.PG_MAX_PAGES_PER_AREA,
+    }
+    if since:
+        inp["since"] = since             # only listings posted after the last run
+    return inp
 
 
-def search_input(max_results: int = config.MAX_RESULTS_PER_RUN) -> dict:
-    """Actor input matching SPEC.md: condo rentals near Tanglin within budget."""
+def ninetynine_input(max_results: int = 60) -> dict:
     lat, lng = config.ANCHOR_LATLNG
     return {
         "searchMode": "coordinates",
@@ -36,20 +48,33 @@ def search_input(max_results: int = config.MAX_RESULTS_PER_RUN) -> dict:
     }
 
 
-def run_live(token: str | None = None, max_results: int = config.MAX_RESULTS_PER_RUN,
-             max_cost_usd: float = config.MAX_COST_USD_PER_RUN) -> list[dict]:
+# Kept for backwards compatibility with earlier code/tests.
+search_input = ninetynine_input
+
+
+def run_actor(actor: str, actor_input: dict, token: str | None = None,
+              max_cost_usd: float = config.MAX_COST_USD_PER_RUN) -> list[dict]:
     token = token or os.environ.get("APIFY_TOKEN")
     if not token:
         raise SystemExit("APIFY_TOKEN is not set. Put it in the .env file (see .env.example).")
-    query = urllib.parse.urlencode({"maxTotalChargeUsd": max_cost_usd, "timeout": 280})
+    actor_path = actor.replace("/", "~")
+    query = urllib.parse.urlencode({"maxTotalChargeUsd": max_cost_usd, "timeout": 600})
     req = urllib.request.Request(
-        f"{RUN_SYNC_URL}?{query}",
-        data=json.dumps(search_input(max_results)).encode(),
+        f"https://api.apify.com/v2/acts/{actor_path}/run-sync-get-dataset-items?{query}",
+        data=json.dumps(actor_input).encode(),
         headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=300) as resp:
+    with urllib.request.urlopen(req, timeout=620) as resp:
         return json.load(resp)
+
+
+def run_live(source: str = "propertyguru", since: str | None = None, **kw) -> list[dict]:
+    if source == "propertyguru":
+        return run_actor(config.PG_ACTOR, propertyguru_input(since=since), **kw)
+    if source == "99co":
+        return run_actor(config.NINETYNINE_ACTOR, ninetynine_input(), **kw)
+    raise ValueError(f"unknown source {source!r}")
 
 
 def load_file(path: str | Path) -> list[dict]:

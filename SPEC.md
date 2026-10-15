@@ -11,7 +11,7 @@ tenancy documents. The final choice always stays with me.
 | Criterion | Rule |
 |---|---|
 | Property type | Whole-unit **condo only** (no HDB, no room rentals) |
-| Location | Within **25 minutes off-peak driving** to Tanglin |
+| Location | Inside the agreed **search area**: West Coast/Queenstown to Bedok/East Coast, Harbourfront to Ang Mo Kio (map of 2026-10-15; replaces the 25-minute drive rule) |
 | Budget | Target **S$3,000/month**; up to **S$3,500** only if it is a "good deal" |
 | Size | Minimum **550 sqft** (raised from 500: smaller "1-bedrooms" were often studios); **500 sqft** if the listing has a study |
 | Layout | 1 bedroom minimum with a **separate bedroom** (no studios); **1 bedroom + study** preferred (ranked higher) |
@@ -39,15 +39,19 @@ The URA access key is stored in a local `.env` file and is **never committed**.
 
 ## Listings data
 
-- A **99.co** rental scraper (via Apify) pulls current condo rental listings
-  matching the filters above.
-- Each listing must keep its **direct link** so I can open it immediately.
+- **PropertyGuru** (main source) via the Apify actor
+  `automation-lab/propertyguru-singapore-listings-agent-leads-scraper`: one search
+  per area name, about US$1-2 per 1,000 listings.
+- **99.co** (optional, secondary) via `sian.agency/99co-property-scraper`: about
+  US$12 per 1,000 listings, so used sparingly.
+- The same unit posted on both sites is merged (same project and size; cheapest kept).
+- Each listing keeps its **direct link**.
 
 ## Processing pipeline
 
 1. **Collect**: fetch condo rental listings matching budget and size filters.
-2. **Filter**: drop listings over S$3,500, under 550 sqft, non-condo, or beyond
-   25 minutes off-peak drive to Tanglin.
+2. **Filter**: drop listings over S$3,500, under 550 sqft, non-condo, rooms, or
+   outside the search area.
 3. **Deduplicate**: merge the same unit posted by several agents (same project,
    size, floor range and similar rent); keep the cheapest version.
 4. **Price check**: compare each listing with URA signed rents for similar units.
@@ -55,12 +59,12 @@ The URA access key is stored in a local `.env` file and is **never committed**.
 6. **Explain**: write a short reason for each pick.
 7. **Deliver** via Telegram.
 
-## Drive time
+## Location
 
-- Measured **off-peak** from each condo to Tanglin.
-- Calculated once per condo project and cached, since off-peak times are stable.
-- Preferred routing source: **OneMap** (Singapore government, free). Fallback:
-  another routing API if OneMap is unsuitable.
+- Coordinates come from the listing (99.co) or from the building name via
+  **OneMap** (Singapore Land Authority, free), cached per building.
+- Listings outside the search area are dropped; listings whose building can't be
+  located are kept and flagged.
 
 ## Scoring (highest first)
 
@@ -69,7 +73,6 @@ The URA access key is stored in a local `.env` file and is **never committed**.
 | Rent vs. market median | Below median ranks higher; the further below, the better |
 | Rent per sqft | Lower ranks higher |
 | Layout | 1 bedroom + study gets a bonus |
-| Build year | Newer projects rank higher |
 | Listing quality | Renovation mentioned, multiple photos → bonus |
 | Possible studio | 1-bedroom under 550 sqft without a study → "check the floor plan" (agents sometimes list studios as 1BR) |
 | Red flags | No photos, rent suspiciously far below market (possible bait), stale listing → flagged |
@@ -82,7 +85,6 @@ Each shortlisted listing shows:
 - Monthly rent, size (sqft), rent per sqft
 - Rent vs. market: e.g. "8% below recent median"
 - Layout (1BR / 1BR + study), build year
-- Off-peak drive time to Tanglin
 - One or two lines explaining why it was picked, plus any flags
 
 ## Delivery
