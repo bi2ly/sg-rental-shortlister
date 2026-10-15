@@ -91,3 +91,14 @@ def test_pg_input():
     assert inp["searchType"] == "rent" and inp["maxPrice"] == 3500
     assert "Tanglin" in inp["keywords"] and "Katong" in inp["keywords"]
     assert inp["scrapeDetails"] is False and inp["since"].startswith("2026-10-15")
+
+
+def test_price_difference_noted_only_when_prices_differ():
+    from shortlister.models import Listing
+    from shortlister.shortlist import price_differences
+    pg = Listing("Okio", 3400, 592, source="PropertyGuru", url="pg")
+    nn_same = Listing("Okio", 3400, 592, source="99.co", url="nn")
+    nn_dear = Listing("Okio", 3600, 590, source="99.co", url="nn2")
+    assert price_differences(pg, [pg, nn_same]) == []
+    notes = price_differences(pg, [pg, nn_same, nn_dear])
+    assert len(notes) == 1 and "S$3,600 on 99.co (S$+200)" in notes[0] and "nn2" in notes[0]

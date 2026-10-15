@@ -19,15 +19,30 @@ class Shortlist:
     duplicates_removed: int = 0
 
 
+def _key(l: Listing) -> tuple:
+    return (norm_name(l.project), round(l.sqft / 5))
+
+
 def dedupe(listings: list[Listing]) -> tuple[list[Listing], int]:
     """Same project + same size (±5 sqft) is treated as one unit posted by
-    several agents; the cheapest version is kept."""
+    several agents or on several sites; the cheapest version is kept."""
     best: dict[tuple, Listing] = {}
     for l in listings:
-        key = (norm_name(l.project), round(l.sqft / 5))
+        key = _key(l)
         if key not in best or l.rent < best[key].rent:
             best[key] = l
     return list(best.values()), len(listings) - len(best)
+
+
+def price_differences(kept: Listing, listings: list[Listing]) -> list[str]:
+    """Other postings of the same unit at a different price (same price: silent)."""
+    notes = []
+    for other in listings:
+        if other is kept or _key(other) != _key(kept) or other.rent == kept.rent:
+            continue
+        notes.append(f"same unit also listed at S${other.rent:,.0f} on {other.source} "
+                     f"(S${other.rent - kept.rent:+,.0f}): {other.url}")
+    return notes
 
 
 def score(v: Verdict) -> float:
@@ -57,6 +72,7 @@ def build(listings: list[Listing], source: BenchmarkSource) -> Shortlist:
             v.flags.append("no photos")
         if l.lat is None:
             v.flags.append("location not found: check the area yourself")
+        v.flags.extend(price_differences(l, listings))
         if l.completed_year and l.completed_year < date.today().year - 25:
             v.flags.append(f"older building (completed {l.completed_year})")
         if v.keep:
