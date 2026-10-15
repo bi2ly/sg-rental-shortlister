@@ -42,7 +42,7 @@ def test_fields_mapped(rows):
     okio = next(l for l in listings if l.listing_id == "jSBrpCsTCpS5CLVVYQFKUH")
     assert (okio.rent, okio.sqft, okio.bedrooms, okio.completed_year) == (3400, 592, 2, 2015)
     assert okio.district == 12 and okio.lat and okio.lng
-    assert okio.url.startswith("https://www.99.co/")
+    assert okio.url == "https://www.99.co/property/jSBrpCsTCpS5CLVVYQFKUH"
     assert okio.posted_at.startswith("2026-10-14")
 
 

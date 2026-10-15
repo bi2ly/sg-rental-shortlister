@@ -9,6 +9,8 @@ Findings from the first real export (2026-10-14), which shape the rules below:
 - There is no full description without paid enrichment, only a short
   `highlights` line, so "study" can only be detected from title/highlights.
 - Agent name/phone is included; we never store it.
+- The scraper's `url` (99.co/singapore/listings/<id>) returns 404. The short
+  link 99.co/property/<id> redirects to the real listing page, so we build that.
 """
 
 from __future__ import annotations
@@ -59,6 +61,11 @@ def _posted_iso(value) -> str | None:
     return datetime.fromtimestamp(seconds, tz=timezone.utc).isoformat(timespec="seconds")
 
 
+def listing_url(raw: dict) -> str | None:
+    pid = raw.get("propertyId")
+    return f"https://www.99.co/property/{pid}" if pid else raw.get("url")
+
+
 def to_listing(raw: dict) -> Listing | None:
     """Map one raw row to a Listing. Returns None if essential data is missing."""
     pricing, specs = raw.get("pricing") or {}, raw.get("specs") or {}
@@ -78,7 +85,7 @@ def to_listing(raw: dict) -> Listing | None:
         sqft=float(sqft),
         bedrooms=beds,
         has_study=bool(STUDY_WORDS.search(_text(raw))),
-        url=raw.get("url"),
+        url=listing_url(raw),
         listing_id=raw.get("propertyId"),
         source="99.co",
         title=raw.get("listingTitle"),
