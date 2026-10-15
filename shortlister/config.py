@@ -38,11 +38,11 @@ AREA_KEYWORDS = [
 
 # --- Listing sources (Apify) -----------------------------------------------------
 PG_ACTOR = "automation-lab/propertyguru-singapore-listings-agent-leads-scraper"
-PG_MAX_PAGES_PER_AREA = 3
+PG_MAX_PAGES_PER_AREA = 15          # 20 listings/page; enough for every district
 PG_KEEP_TYPES = {"CONDO", "CON", "APT", "EXCON", "EXEC"}   # drop HDB, walk-ups, landed
 PG_DETAIL_MAX = 40                   # full pages opened per run (shortlisted units only)
-MAX_RESULTS_PER_RUN = 500            # across all areas (~US$0.50 for a full sweep)
-MAX_COST_USD_PER_RUN = 1.0           # hard spending cap sent to Apify (minimum allowed)
+MAX_RESULTS_PER_RUN = 2000           # full sweep; PropertyGuru filters keep it to a few hundred
+MAX_COST_USD_PER_RUN = 2.0           # hard spending cap per Apify run
 
 # 99.co is now secondary (about 10x the price of PropertyGuru per listing).
 NINETYNINE_ACTOR = "sian.agency/99co-property-scraper"

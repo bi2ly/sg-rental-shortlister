@@ -71,6 +71,9 @@ def _card(i: int, v) -> str:
     for f in v.flags:
         if f.startswith(("no market data", "benchmark based on only")):
             continue   # shown in the verdict line
+        if f.startswith("⬇️"):
+            lines.append(f"<b>{e(f)}</b>")
+            continue
         if "same unit also listed" in f:
             text, _, url = f.rpartition(": ")
             lines.append(f"⚠️ {e(text)}: <a href=\"{e(url)}\">other listing</a>")
@@ -81,10 +84,11 @@ def _card(i: int, v) -> str:
     return "\n".join(lines)
 
 
-def messages(sl: Shortlist, new_only: bool) -> list[str]:
+def messages(sl: Shortlist, new_only: bool, first_run: bool = False) -> list[str]:
     from datetime import datetime
     when = datetime.now(SGT).strftime("%a %d %b, %H:%M")
-    scope = "new since last run" if new_only else "all current listings"
+    scope = ("all current listings: first run, from now on only new ones" if first_run
+             else "new or cheaper since last alert" if new_only else "all current listings")
     head = (f"🏠 <b>Condo shortlist</b> · {when}\n"
             f"{len(sl.kept)} shortlisted · {len(sl.unverified)} need a price check ({scope})")
     if not sl.kept and not sl.unverified:

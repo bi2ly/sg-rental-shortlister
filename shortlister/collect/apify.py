@@ -16,20 +16,34 @@ from pathlib import Path
 from .. import config
 
 
-def propertyguru_input(max_items: int = config.MAX_RESULTS_PER_RUN, since: str | None = None) -> dict:
-    """One keyword search per area; price filter server-side, the rest in our code."""
-    inp = {
-        "searchType": "rent",
-        "keywords": config.AREA_KEYWORDS,
-        "maxPrice": config.MAX_RENT,
-        "minBedrooms": 1,
+PG_SEARCH = "https://www.propertyguru.com.sg/property-for-rent"
+
+
+def propertyguru_search_url(district: int) -> str:
+    """PropertyGuru's own filters (checked 2026-10-15): district, max rent, min size,
+    condo/apartment only. Everything returned is relevant, so a full sweep stays cheap."""
+    q = urllib.parse.urlencode([
+        ("listingType", "rent"), ("districtCode", f"D{district:02d}"),
+        ("maxPrice", config.MAX_RENT), ("minSize", min(config.MIN_SQFT, config.MIN_SQFT_WITH_STUDY)),
+        ("propertyTypeGroup", "N"), ("propertyTypeCode", "CONDO"), ("propertyTypeCode", "APT"),
+        ("propertyTypeCode", "EXCON"), ("isCommercial", "false"),
+    ])
+    return f"{PG_SEARCH}?{q}"
+
+
+def propertyguru_input(max_items: int = config.MAX_RESULTS_PER_RUN) -> dict:
+    """Full sweep: every current listing in the search districts.
+
+    No 'posted since' filter: in card mode PropertyGuru gives no posting date, so
+    that filter silently dropped everything (bug found 2026-10-15). New listings
+    are detected with our own memory of listings already sent (state.py).
+    """
+    return {
+        "startUrls": [{"url": propertyguru_search_url(d)} for d in sorted(config.AREA_DISTRICTS)],
         "scrapeDetails": False,          # card mode: cheap, enough fields
         "maxItems": max_items,
         "maxPages": config.PG_MAX_PAGES_PER_AREA,
     }
-    if since:
-        inp["since"] = since             # only listings posted after the last run
-    return inp
 
 
 def ninetynine_input(max_results: int = 60) -> dict:
@@ -94,9 +108,9 @@ def run_actor(actor: str, actor_input: dict, token: str | None = None,
         offset += 1000
 
 
-def run_live(source: str = "propertyguru", since: str | None = None, **kw) -> list[dict]:
+def run_live(source: str = "propertyguru", **kw) -> list[dict]:
     if source == "propertyguru":
-        return run_actor(config.PG_ACTOR, propertyguru_input(since=since), **kw)
+        return run_actor(config.PG_ACTOR, propertyguru_input(), **kw)
     if source == "99co":
         return run_actor(config.NINETYNINE_ACTOR, ninetynine_input(), **kw)
     raise ValueError(f"unknown source {source!r}")

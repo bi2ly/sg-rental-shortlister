@@ -14,7 +14,7 @@ on:
         options: [propertyguru, all]
         default: propertyguru
       new_only:
-        description: "Only listings posted since the last run"
+        description: "Only alert on listings not sent before (untick to resend everything current)"
         type: boolean
         default: true
 

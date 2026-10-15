@@ -68,7 +68,7 @@ every unit and prints a ranked shortlist with direct links.
 cp .env.example .env          # then paste your Apify token into .env
 
 python -m shortlister collect --live                     # PropertyGuru
-python -m shortlister collect --live --new-only          # only listings since last run
+python -m shortlister collect --live --new-only          # alert only on unseen / cheaper listings
 python -m shortlister collect --live --source all        # PropertyGuru + 99.co
 python -m shortlister collect --file pg.json 99co.json   # from Apify JSON exports
 ```
@@ -89,8 +89,9 @@ card data has no coordinates, so buildings are located with OneMap.
 ## Daily run on GitHub (no server needed)
 
 `.github/workflows/daily-shortlist.yml` runs every day at **07:47 and 19:47 Singapore time**
-on GitHub's machines: it collects PropertyGuru listings posted since the last
-run, filters and price-checks them, and shows the shortlist on the run's page
+on GitHub's machines: it sweeps every current PropertyGuru listing in the search
+districts (PropertyGuru's own filters keep it to relevant units), filters and
+price-checks them, alerts only on listings not sent before or now cheaper, and shows the shortlist on the run's page
 (**Actions** tab -> *Daily shortlist* -> latest run). The report is also kept as
 a downloadable file for 30 days.
 
@@ -103,8 +104,10 @@ To receive it on Telegram, also add the secrets `TELEGRAM_BOT_TOKEN` (from
 @BotFather) and `TELEGRAM_CHAT_ID` (your own chat ID). Without them the run
 still works and the report stays in the Actions tab.
 
-State between runs (last run time, building coordinates, market rents) is kept
-in GitHub's cache, not committed, since the repo is public.
+The memory of listings already sent is kept in your Apify account (key-value
+store `sg-rental-shortlister`), so it survives even if GitHub's cache is cleared.
+It is only updated after Telegram confirms delivery. Building coordinates and
+market rents are kept in GitHub's cache (losing them only costs a re-download).
 
 Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 

@@ -27,24 +27,30 @@ from .pricing.matching import normalise
 from .shortlist import build, score
 
 RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "listings"
-STATE = Path(__file__).resolve().parents[1] / "data" / "state.json"
-
-
-def _state() -> dict:
-    return json.loads(STATE.read_text()) if STATE.exists() else {}
-
-
-def _save_state(state: dict) -> None:
-    STATE.parent.mkdir(parents=True, exist_ok=True)
-    STATE.write_text(json.dumps(state, indent=1))
-
-
 def _save_raw(rows: list[dict]) -> None:
     """Keep each live run (without agent personal data) for later comparisons."""
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     clean = [{k: v for k, v in r.items() if k not in ("agent", "agency")} for r in rows]
     path = RAW_DIR / f"{datetime.now():%Y-%m-%d_%H%M}.json"
     path.write_text(json.dumps(clean, indent=1))
+
+
+def _only_unseen(sl, seen):
+    """Keep only listings never alerted before, or now cheaper than before."""
+    from .shortlist import Shortlist
+
+    def fresh(vs):
+        out = []
+        for v in vs:
+            status, prev = seen.status(v.listing)
+            if status == "seen":
+                continue
+            if status == "price_drop":
+                v.flags.insert(0, f"⬇️ price reduced from S${prev:,.0f}")
+            out.append(v)
+        return out
+    return Shortlist(kept=fresh(sl.kept), unverified=fresh(sl.unverified),
+                     skipped=sl.skipped, duplicates_removed=sl.duplicates_removed)
 
 
 def _add_details(sl, listings, source):
@@ -63,7 +69,12 @@ def _add_details(sl, listings, source):
     listings = pg.apply_details(listings, rows)
     from .geo import Geocoder, add_mrt_walk
     listings = add_mrt_walk(listings, Geocoder())
-    return build(listings, source), listings
+    by_id = {l.listing_id: l for l in listings}
+    from dataclasses import replace
+    for v in sl.kept + sl.unverified:      # refresh cards in place, keep the filtering
+        if v.listing.listing_id in by_id:
+            v.listing = by_id[v.listing.listing_id]
+    return sl, listings
 
 
 def _print_card(i: int, v) -> None:
@@ -116,7 +127,8 @@ def main(argv: list[str] | None = None) -> int:
     src.add_argument("--live", action="store_true", help="run the Apify scrapers now (costs money)")
     co.add_argument("--source", choices=["propertyguru", "99co", "all"], default="propertyguru")
     co.add_argument("--new-only", action="store_true",
-                    help="PropertyGuru: only listings posted since the last live run")
+                    help="only alert on listings not seen before (or cheaper than before); "
+                         "the memory is kept in your Apify account")
     co.add_argument("--no-geo", action="store_true", help="skip OneMap lookups (offline)")
     co.add_argument("--show-skipped", action="store_true")
     co.add_argument("--report", help="also write a Markdown report to this file (appends)")
@@ -129,15 +141,11 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "collect":
         if args.live:
-            state, rows = _state(), []
+            rows = []
             sources = ["propertyguru", "99co"] if args.source == "all" else [args.source]
             for s in sources:
-                since = state.get("last_run", {}).get(s) if args.new_only else None
-                rows += run_live(s, since=since)
-                state.setdefault("last_run", {})[s] = (
-                    datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+                rows += run_live(s)
             _save_raw(rows)
-            _save_state(state)
         else:
             rows = [r for f in args.file for r in load_file(f)]
         listings, dropped, streets = normalise_rows(rows)
@@ -145,6 +153,12 @@ def main(argv: list[str] | None = None) -> int:
             listings, outside = place(listings, Geocoder(), streets)
             dropped += outside
         sl = build(listings, source)
+        seen, first_run = None, False
+        if args.new_only:
+            from .state import SeenStore
+            seen = SeenStore().load()
+            first_run = seen.is_empty
+            sl = _only_unseen(sl, seen)
         if args.live:
             sl, listings = _add_details(sl, listings, source)
         if args.report:
@@ -152,8 +166,13 @@ def main(argv: list[str] | None = None) -> int:
                 fh.write(markdown(sl, len(rows), len(dropped), bool(args.live and args.new_only)))
         if args.telegram:
             from .notify import messages, send
-            n = send(messages(sl, bool(args.live and args.new_only)))
+            n = send(messages(sl, bool(args.new_only), first_run=first_run))
             print(f"Sent {n} Telegram message(s).")
+        if seen is not None:
+            # only after a successful send: if Telegram fails, the run errors
+            # out above and these listings are alerted again next time
+            seen.remember(listings)
+            seen.save()
         print(f"{len(rows)} listings collected | {len(dropped)} removed (rooms, HDB/walk-ups, outside area) | "
               f"{sl.duplicates_removed} duplicates removed | "
               f"{len(sl.kept)} shortlisted | {len(sl.unverified)} need a price check | "

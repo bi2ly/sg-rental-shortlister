@@ -21,7 +21,7 @@ def test_cards_html_and_links(tmp_path):
     listings, _, _ = normalise(load_file(FIX))
     msgs = messages(_sl(tmp_path, listings), new_only=True)
     text = "\n".join(msgs)
-    assert "<b>Condo shortlist</b>" in text and "new since last run" in text
+    assert "<b>Condo shortlist</b>" in text and "new or cheaper since last alert" in text
     assert '<a href="https://www.propertyguru.com.sg/listing/' in text
     assert "<script" not in text
 

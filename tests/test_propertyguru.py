@@ -87,10 +87,14 @@ def test_place_geocodes_and_caches(pg_rows, tmp_path):
 
 
 def test_pg_input():
-    inp = propertyguru_input(since="2026-10-15T00:00:00Z")
-    assert inp["searchType"] == "rent" and inp["maxPrice"] == 3500
-    assert "Tanglin" in inp["keywords"] and "Katong" in inp["keywords"]
-    assert inp["scrapeDetails"] is False and inp["since"].startswith("2026-10-15")
+    """Filtered district search URLs, verified live on 2026-10-15 (D12: 12/12 relevant)."""
+    inp = propertyguru_input()
+    urls = [u["url"] for u in inp["startUrls"]]
+    assert len(urls) == 19 and "since" not in inp and inp["scrapeDetails"] is False
+    d12 = next(u for u in urls if "districtCode=D12" in u)
+    for part in ("maxPrice=3500", "minSize=500", "propertyTypeCode=CONDO",
+                 "propertyTypeCode=APT", "propertyTypeGroup=N"):
+        assert part in d12
 
 
 def test_price_difference_noted_only_when_prices_differ():

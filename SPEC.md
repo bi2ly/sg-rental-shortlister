@@ -90,7 +90,8 @@ Each shortlisted listing shows:
 ## Delivery
 
 - **Telegram bot**
-- **Daily**: one shortlist message every morning with new or changed listings
+- **Twice daily** (07:47 and 19:47 SGT): full sweep of current listings; the message
+  contains only listings never sent before, or now cheaper ("⬇️ price reduced")
 - **On demand**: commands such as `/search` to run a fresh search at any time,
   optionally with temporary overrides (e.g. a different budget)
 
