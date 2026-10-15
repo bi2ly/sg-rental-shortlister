@@ -77,6 +77,7 @@ def to_listing(raw: dict) -> Listing:
         highlights=raw.get("address"),
         district=int(district) if district else None,
         photo_count=len(raw.get("imageUrls") or []),
+        area=raw.get("district") or None,
     )
 
 
@@ -110,6 +111,14 @@ def sg_date(iso: str | None) -> str | None:
     return dt.astimezone(timezone(timedelta(hours=8))).date().isoformat()
 
 
+def clean_mrt(name: str | None) -> str | None:
+    """'NE9 Boon Keng MRT Station' -> 'Boon Keng MRT'."""
+    if not name:
+        return None
+    name = re.sub(r"^\s*([A-Z]{1,3}\d{1,2}\s*)+", "", name)
+    return re.sub(r"\s+Station\s*$", "", name).strip() or None
+
+
 def apply_details(listings: list[Listing], rows: list[dict]) -> list[Listing]:
     """Add availability date (and study, from the agent's headline/description)."""
     from dataclasses import replace
@@ -119,7 +128,10 @@ def apply_details(listings: list[Listing], rows: list[dict]) -> list[Listing]:
         r = by_id.get(l.listing_id)
         if r:
             text = " ".join(str(r.get(k) or "") for k in ("headline", "description"))
+            mrts = [m.get("name") for m in (r.get("mrt") or []) if isinstance(m, dict)]
             l = replace(l, available_from=sg_date(r.get("availableAt")), details_fetched=True,
+                        mrt_name=clean_mrt(mrts[0]) if mrts else None,
+                        area=r.get("district") or l.area,
                         has_study=l.has_study or bool(STUDY_WORDS.search(text)),
                         highlights=r.get("headline") or l.highlights)
         out.append(l)

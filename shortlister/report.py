@@ -15,6 +15,19 @@ def _layout(l) -> str:
     return s + (" + study" if l.has_study else "")
 
 
+def size(l) -> str:
+    return f"{l.sqft:,.0f} sqft ({l.sqft * 0.092903:,.0f} sqm)"
+
+
+def where(l) -> str:
+    """'Boon Keng MRT · ~6 min walk', else the area name, else the district."""
+    if l.mrt_name:
+        return l.mrt_name + (f" · ~{l.mrt_walk_min} min walk" if l.mrt_walk_min else "")
+    if l.area:
+        return l.area
+    return f"District {l.district}" if l.district else ""
+
+
 def _market(v) -> str:
     if v.vs_median_pct is None:
         return "no market data"
@@ -40,7 +53,7 @@ def _rows(verdicts) -> list[str]:
         avail = available(l)
         notes = "<br>".join(([f"Available: {avail}"] if avail else [])
                             + [f.replace("|", "/") for f in v.flags])
-        out.append(f"| {i} | **{l.project}** (D{l.district}) | S${l.rent:,.0f} | {l.sqft:,.0f} sqft "
+        out.append(f"| {i} | **{l.project}**<br>{where(l)} | S${l.rent:,.0f} | {size(l)} "
                    f"| {l.psf:.2f} | {_layout(l)} | {_market(v)} | {notes} "
                    f"| [{l.source}]({l.url}) |")
     return out

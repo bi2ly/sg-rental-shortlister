@@ -61,6 +61,8 @@ def _add_details(sl, listings, source):
         print(f"warning: could not fetch listing details ({e})")
         return sl, listings
     listings = pg.apply_details(listings, rows)
+    from .geo import Geocoder, add_mrt_walk
+    listings = add_mrt_walk(listings, Geocoder())
     return build(listings, source), listings
 
 

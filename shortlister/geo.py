@@ -87,3 +87,29 @@ def place(listings: list[Listing], geocoder: Geocoder,
             continue
         kept.append(l)
     return kept, dropped
+
+
+def distance_m(a: tuple[float, float], b: tuple[float, float]) -> float:
+    import math
+    (la1, lo1), (la2, lo2) = a, b
+    p = math.radians
+    h = (math.sin(p(la2 - la1) / 2) ** 2
+         + math.cos(p(la1)) * math.cos(p(la2)) * math.sin(p(lo2 - lo1) / 2) ** 2)
+    return 2 * 6_371_000 * math.asin(math.sqrt(h))
+
+
+def walk_minutes(metres: float) -> int:
+    """Straight line x1.3 for real streets, at 80 m/min. An estimate, not a route."""
+    return max(1, round(metres * 1.3 / 80))
+
+
+def add_mrt_walk(listings: list[Listing], geocoder: Geocoder) -> list[Listing]:
+    from dataclasses import replace
+    out = []
+    for l in listings:
+        if l.mrt_name and l.lat is not None and l.mrt_walk_min is None:
+            station = geocoder.locate(f"{l.mrt_name} Station")
+            if station:
+                l = replace(l, mrt_walk_min=walk_minutes(distance_m((l.lat, l.lng), station)))
+        out.append(l)
+    return out

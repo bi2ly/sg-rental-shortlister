@@ -28,6 +28,9 @@ class Listing:
     posted_at: str | None = None         # ISO-8601 UTC
     available_from: str | None = None    # YYYY-MM-DD (Singapore date), from the full listing page
     details_fetched: bool = False        # full listing page was opened
+    area: str | None = None              # e.g. "Balestier / Toa Payoh"
+    mrt_name: str | None = None          # e.g. "Boon Keng MRT"
+    mrt_walk_min: int | None = None      # estimated walking minutes to mrt_name
 
     @property
     def psf(self) -> float:

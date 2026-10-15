@@ -64,3 +64,24 @@ def test_availability_from_full_page(tmp_path):
     assert available(flo) == "not stated" and available(other) is None
     text = "\n".join(messages(_sl(tmp_path, [okio, aff, flo, other]), new_only=True))
     assert "📅 Available:" in text and text.count("📅") == 3
+
+
+def test_mrt_walk_size_and_card(tmp_path):
+    """Real OneMap coordinates: Okio and Boon Keng MRT (checked 2026-10-15)."""
+    from shortlister.collect.propertyguru import clean_mrt
+    from shortlister.geo import Geocoder, add_mrt_walk
+    assert clean_mrt("NE9 Boon Keng MRT Station") == "Boon Keng MRT"
+    assert clean_mrt("CR9 Serangoon North MRT Station") == "Serangoon North MRT"
+    station = {"results": [{"SEARCHVAL": "BOON KENG MRT STATION",
+                            "LATITUDE": "1.319939576532913", "LONGITUDE": "103.8620526984453"}]}
+    geo = Geocoder(cache_path=tmp_path / "g.json", fetch=lambda q: station)
+    okio = Listing("Okio", 3400, 592, bedrooms=2, source="PropertyGuru", url="u", listing_id="1",
+                   lat=1.322133428227486, lng=103.8531996618712, mrt_name="Boon Keng MRT",
+                   area="Balestier / Toa Payoh")
+    okio, = add_mrt_walk([okio], geo)
+    assert 12 <= okio.mrt_walk_min <= 18           # ~1 km away
+    noMrt = Listing("Vista Residences", 3450, 635, bedrooms=1, source="PropertyGuru", url="v",
+                    listing_id="2", area="Balestier / Toa Payoh")
+    text = "\n".join(messages(_sl(tmp_path, [okio, noMrt]), new_only=True))
+    assert "🚇 Boon Keng MRT · ~" in text and "592 sqft (55 sqm)" in text
+    assert "📍 Balestier / Toa Payoh" in text and "(D12)" not in text
