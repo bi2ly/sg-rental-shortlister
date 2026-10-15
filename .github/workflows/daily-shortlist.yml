@@ -48,6 +48,8 @@ jobs:
         env:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           DATAGOV_API_KEY: ${{ secrets.DATAGOV_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           if [ -z "$APIFY_TOKEN" ]; then
             echo "::error::Add the APIFY_TOKEN secret (Settings > Secrets and variables > Actions)."
@@ -55,7 +57,7 @@ jobs:
           fi
           SOURCE="${{ inputs.source || 'propertyguru' }}"
           NEW_ONLY="${{ github.event_name == 'schedule' || inputs.new_only }}"
-          FLAGS="--live --source $SOURCE --report report.md"
+          FLAGS="--live --source $SOURCE --report report.md --telegram"
           if [ "$NEW_ONLY" = "true" ]; then FLAGS="$FLAGS --new-only"; fi
           python -m shortlister collect $FLAGS
           cat report.md >> "$GITHUB_STEP_SUMMARY"

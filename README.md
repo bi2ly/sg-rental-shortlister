@@ -99,6 +99,10 @@ Setup: add your Apify token as a repository secret named `APIFY_TOKEN`
 To run it now, open *Daily shortlist* in the Actions tab and click **Run workflow**
 (untick "Only listings posted since the last run" for a full sweep).
 
+To receive it on Telegram, also add the secrets `TELEGRAM_BOT_TOKEN` (from
+@BotFather) and `TELEGRAM_CHAT_ID` (your own chat ID). Without them the run
+still works and the report stays in the Actions tab.
+
 State between runs (last run time, building coordinates, market rents) is kept
 in GitHub's cache, not committed, since the repo is public.
 
@@ -114,7 +118,8 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 - [x] PropertyGuru as main source, cross-site duplicate merge
 - [x] Search-area filter (OneMap building coordinates)
 - [x] Daily run on GitHub Actions (07:47 SGT)
-- [ ] Telegram bot: daily shortlist + on-demand search
+- [x] Telegram: daily shortlist sent from GitHub Actions
+- [ ] Telegram: on-demand /search
 
 ## Disclaimer
 

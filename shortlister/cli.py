@@ -101,6 +101,8 @@ def main(argv: list[str] | None = None) -> int:
     co.add_argument("--no-geo", action="store_true", help="skip OneMap lookups (offline)")
     co.add_argument("--show-skipped", action="store_true")
     co.add_argument("--report", help="also write a Markdown report to this file (appends)")
+    co.add_argument("--telegram", action="store_true",
+                    help="send the shortlist to Telegram (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)")
 
     args = p.parse_args(argv)
     load_env()
@@ -127,6 +129,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.report:
             with open(args.report, "a") as fh:
                 fh.write(markdown(sl, len(rows), len(dropped), bool(args.live and args.new_only)))
+        if args.telegram:
+            from .notify import messages, send
+            n = send(messages(sl, bool(args.live and args.new_only)))
+            print(f"Sent {n} Telegram message(s).")
         print(f"{len(rows)} listings collected | {len(dropped)} removed (rooms, HDB/walk-ups, outside area) | "
               f"{sl.duplicates_removed} duplicates removed | "
               f"{len(sl.kept)} shortlisted | {len(sl.unverified)} need a price check | "
