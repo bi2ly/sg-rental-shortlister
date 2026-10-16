@@ -92,7 +92,8 @@ card data has no coordinates, so buildings are located with OneMap.
 ## Daily run on GitHub (no server needed)
 
 `.github/workflows/daily-shortlist.yml` runs every day at **07:47 and 19:47 Singapore time**
-on GitHub's machines: it sweeps every current PropertyGuru listing in the search
+on GitHub's machines, started on time by a cron-job.org job that calls GitHub's
+"run workflow" API (GitHub's own scheduler ran up to 4 hours late): it sweeps every current PropertyGuru listing in the search
 districts (PropertyGuru's own filters keep it to relevant units), filters and
 price-checks them, alerts only on listings not sent before or now cheaper, and shows the shortlist on the run's page
 (**Actions** tab -> *Daily shortlist* -> latest run). The report is also kept as
@@ -123,7 +124,7 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 - [x] Listing collection (99.co via Apify): room filter, dedupe, ranked shortlist
 - [x] PropertyGuru as main source, cross-site duplicate merge
 - [x] Search-area filter (OneMap building coordinates)
-- [x] Twice-daily run on GitHub Actions (07:47 and 19:47 SGT)
+- [x] Twice-daily run on GitHub Actions (07:47 and 19:47 SGT, started by cron-job.org)
 - [x] Telegram: daily shortlist sent from GitHub Actions
 - [ ] Telegram: on-demand /search
 

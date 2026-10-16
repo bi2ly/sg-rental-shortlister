@@ -1,11 +1,8 @@
 name: Daily shortlist
 
 on:
-  schedule:
-    # Times are UTC; Singapore is UTC+8. Off the hour because GitHub delays
-    # jobs scheduled exactly on the hour when it is busy.
-    - cron: "47 23 * * *"   # 07:47 SGT
-    - cron: "47 11 * * *"   # 19:47 SGT
+  # Started at 07:47 and 19:47 Singapore time by cron-job.org, which calls
+  # GitHub's "run workflow" API (GitHub's own schedule ran up to 4 hours late).
   workflow_dispatch:
     inputs:
       source:
@@ -19,7 +16,7 @@ on:
         default: true
 
 permissions:
-  contents: write          # only used by the keep-alive step
+  contents: read
 
 concurrency:
   group: daily-shortlist
@@ -57,7 +54,7 @@ jobs:
             exit 1
           fi
           SOURCE="${{ inputs.source || 'propertyguru' }}"
-          NEW_ONLY="${{ github.event_name == 'schedule' || inputs.new_only }}"
+          NEW_ONLY="${{ inputs.new_only }}"
           FLAGS="--live --source $SOURCE --report report.md --telegram"
           if [ "$NEW_ONLY" = "true" ]; then FLAGS="$FLAGS --new-only"; fi
           python -m shortlister collect $FLAGS
@@ -78,18 +75,3 @@ jobs:
           path: report.md
           if-no-files-found: ignore
           retention-days: 30
-
-      # GitHub pauses scheduled workflows on public repos after 60 days without
-      # commits. Make a tiny commit only when the last one is over 50 days old.
-      - name: Keep schedule alive
-        if: github.event_name == 'schedule'
-        run: |
-          last=$(git log -1 --format=%ct)
-          if [ $(( $(date +%s) - last )) -gt $(( 50 * 86400 )) ]; then
-            date -u +%FT%TZ > .github/keepalive
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add .github/keepalive
-            git commit -m "Keep daily schedule active"
-            git push
-          fi
