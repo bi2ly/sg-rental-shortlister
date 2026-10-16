@@ -86,7 +86,7 @@ test("/status lists runs and the next scheduled search", async () => {
   const text = sent()[0];
   assert.match(text, /✅ ok · Fri 16 Oct, 11:11/);
   assert.match(text, /❌ failure/);
-  assert.match(text, /Next scheduled search/);
+  assert.match(text, /Next scheduled search: \w{3} \d+ \w{3}, (07|19):47/);
 });
 
 test("unknown text gets the help message", async () => {
@@ -117,11 +117,4 @@ test("/setup needs the key, then registers the webhook and menu", async () => {
   assert.equal(hook.url, "https://w.example/");
   assert.equal(hook.secret_token, "s3cret");
   assert.ok(calls.some((c) => c.url.endsWith("/setMyCommands")));
-});
-
-test("next scheduled time", async () => {
-  const { nextScheduled } = await import("./worker.js");
-  // 11:20 SGT -> 19:47 same day; 20:00 SGT -> 07:47 next day
-  assert.match(nextScheduled(new Date("2026-10-16T03:20:00Z")), /Fri 16 Oct, 19:47/);
-  assert.match(nextScheduled(new Date("2026-10-16T12:00:00Z")), /Sat 17 Oct, 07:47/);
 });

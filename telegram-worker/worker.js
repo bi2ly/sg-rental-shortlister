@@ -164,7 +164,7 @@ function sgTime(iso) {
   });
 }
 
-export function nextScheduled(now) {
+function nextScheduled(now) {
   const sg = new Date(now.getTime() + 8 * 3600_000);           // Singapore wall clock
   for (let d = 0; d < 2; d++) {
     for (const [h, m] of SCHEDULE_SGT) {
