@@ -115,6 +115,22 @@ market rents are kept in GitHub's cache (losing them only costs a re-download).
 
 Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 
+## Telegram commands (optional)
+
+`telegram-worker/worker.js` is a small Cloudflare Worker (free tier) that lets you
+send commands to the bot:
+
+- `/search`: run now, only listings new or cheaper since the last alert
+- `/all`: run now, resend every current match
+- `/status`: last runs and the next scheduled one
+
+It only answers your own chat ID, checks that requests really come from Telegram,
+and won't start a second run while one is already running. Setup: create a Worker,
+paste `worker.js`, add the secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`,
+`GITHUB_TOKEN` (fine-grained, this repo only, Actions: read and write) and
+`WEBHOOK_SECRET` (any random string), then open
+`https://<worker-url>/setup?key=<WEBHOOK_SECRET>` once. Tests: `node --test telegram-worker/worker.test.mjs`.
+
 ## Status
 
 🚧 Specification agreed (see [SPEC.md](SPEC.md)).
@@ -126,7 +142,7 @@ Run tests with `pip install -r requirements-dev.txt && python -m pytest`.
 - [x] Search-area filter (OneMap building coordinates)
 - [x] Twice-daily run on GitHub Actions (07:47 and 19:47 SGT, started by cron-job.org)
 - [x] Telegram: daily shortlist sent from GitHub Actions
-- [ ] Telegram: on-demand /search
+- [x] Telegram: on-demand /search, /all, /status (Cloudflare Worker)
 
 ## Disclaimer
 
