@@ -76,8 +76,10 @@ python -m shortlister collect --file pg.json 99co.json   # from Apify JSON expor
 Every live run is capped at US$1 (Apify's minimum cap). Search areas and the
 map bounding box live in `shortlister/config.py`.
 
-The shortlist has three sections:
+The shortlist has four sections:
 - **Shortlist**: meets the spec (within S$3,000, or S$3,000-3,500 and below market)
+- **Worth negotiating**: asking S$3,500-3,800, below market, and 650+ sqft (550+ with a study);
+  shows the discount needed to reach S$3,500 / S$3,700
 - **Needs price check**: S$3,000-3,500 but the project has no market data yet
 - **Skipped** (with `--show-skipped`): rejected, with the reason
 

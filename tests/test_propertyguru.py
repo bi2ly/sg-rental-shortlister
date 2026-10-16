@@ -92,7 +92,7 @@ def test_pg_input():
     urls = [u["url"] for u in inp["startUrls"]]
     assert len(urls) == 19 and "since" not in inp and inp["scrapeDetails"] is False
     d12 = next(u for u in urls if "districtCode=D12" in u)
-    for part in ("maxPrice=3500", "minSize=500", "propertyTypeCode=CONDO",
+    for part in ("maxPrice=3800", "minSize=500", "propertyTypeCode=CONDO",
                  "propertyTypeCode=APT", "propertyTypeGroup=N"):
         assert part in d12
 

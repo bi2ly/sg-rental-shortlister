@@ -73,5 +73,5 @@ def test_shortlist_buckets(rows, source):
 def test_search_input_matches_spec():
     inp = search_input()
     assert inp["listingType"] == "rent" and inp["propertyType"] == "condo"
-    assert inp["maxPrice"] == 3500 and inp["minFloorArea"] == 500
+    assert inp["maxPrice"] == 3800 and inp["minFloorArea"] == 500
     assert inp["enrichListings"] is False

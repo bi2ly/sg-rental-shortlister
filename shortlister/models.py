@@ -60,6 +60,7 @@ class Verdict:
     vs_median_pct: float | None = None   # negative = cheaper than median
     good_deal: bool = False
     keep: bool = False
+    negotiable: bool = False             # over budget, but worth negotiating
     decision: str = ""                   # one-line keep/skip reason
     reasons: list[str] = field(default_factory=list)
     flags: list[str] = field(default_factory=list)

@@ -12,12 +12,16 @@ tenancy documents. The final choice always stays with me.
 |---|---|
 | Property type | Whole-unit **condo only** (no HDB, no room rentals) |
 | Location | Inside the agreed **search area**: West Coast/Queenstown to Bedok/East Coast, Harbourfront to Ang Mo Kio (map of 2026-10-15; replaces the 25-minute drive rule) |
-| Budget | Target **S$3,000/month**; up to **S$3,500** only if it is a "good deal" |
+| Budget | Target **S$3,000/month**; up to **S$3,500** only if it is a "good deal"; asking S$3,500-3,800 shown as "worth negotiating" (max S$3,700 signed) |
 | Size | Minimum **550 sqft** (raised from 500: smaller "1-bedrooms" were often studios); **500 sqft** if the listing has a study |
 | Layout | 1 bedroom minimum with a **separate bedroom** (no studios); **1 bedroom + study** preferred (ranked higher) |
 | Condition | Well maintained (see scoring below) |
 
 ## Definition of a "good deal"
+
+A listing asking S$3,500-3,800 is shown in a separate "Worth negotiating" section only if it is
+below the project's market median **and** a strong match (at least 650 sqft, or 550 sqft with a
+study); the card shows the discount needed to reach S$3,500 and S$3,700.
 
 A listing between S$3,000 and S$3,500 is kept only if at least one is true:
 
@@ -50,7 +54,7 @@ The URA access key is stored in a local `.env` file and is **never committed**.
 ## Processing pipeline
 
 1. **Collect**: fetch condo rental listings matching budget and size filters.
-2. **Filter**: drop listings over S$3,500, under 550 sqft, non-condo, rooms, or
+2. **Filter**: drop listings over S$3,800, under 500 sqft, non-condo, rooms, or
    outside the search area.
 3. **Deduplicate**: merge the same unit posted by several agents (same project,
    size, floor range and similar rent); keep the cheapest version.

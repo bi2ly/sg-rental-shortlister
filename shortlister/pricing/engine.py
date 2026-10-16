@@ -26,6 +26,15 @@ def classify(psf: float, b: Benchmark) -> str:
     return "overpriced"
 
 
+def strong_match(l: Listing) -> bool:
+    """Worth paying over budget for: a real 1BR (or more) that is roomy, or has a study."""
+    if not l.bedrooms or l.bedrooms < 1:
+        return False
+    if l.has_study:
+        return l.sqft >= config.NEGOTIATE_MIN_SQFT_WITH_STUDY
+    return l.sqft >= config.NEGOTIATE_MIN_SQFT
+
+
 def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
     benchmarks = source.benchmarks()
     name, score = match_project(listing.project, list(benchmarks))
@@ -66,8 +75,19 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
         v.reasons.append(f"rejected: under {min_sqft} sqft")
     elif config.REJECT_STUDIOS and listing.bedrooms == 0:
         v.reasons.append("rejected: studio (no separate bedroom)")
+    elif listing.rent > config.NEGOTIATE_MAX_ASK:
+        v.reasons.append(f"rejected: over S${config.NEGOTIATE_MAX_ASK:,} asking")
     elif listing.rent > config.MAX_RENT:
-        v.reasons.append(f"rejected: over S${config.MAX_RENT:,} max budget")
+        if not bench:
+            v.reasons.append(f"rejected: over S${config.MAX_RENT:,} and no market data to "
+                             "show it's below market")
+        elif v.good_deal and strong_match(listing):
+            v.negotiable = True
+            v.reasons.append(f"worth negotiating: S${listing.rent - config.MAX_RENT:,.0f} over "
+                             f"S${config.MAX_RENT:,}, below market and a strong match")
+        else:
+            v.reasons.append(f"rejected: over S${config.MAX_RENT:,} and not a below-market "
+                             "strong match")
     elif listing.rent <= config.TARGET_RENT:
         v.keep = True
         v.reasons.append(f"within S${config.TARGET_RENT:,} target budget")

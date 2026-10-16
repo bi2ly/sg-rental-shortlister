@@ -48,6 +48,17 @@ def verdict(v) -> str:
     return text
 
 
+def negotiation(rent: float) -> str:
+    """'Needs S$250 off (7%) to reach S$3,500 · S$50 off for your S$3,700 max'."""
+    off = rent - config.MAX_RENT
+    text = f"Needs S${off:,.0f} off ({off / rent:.0%}) to reach S${config.MAX_RENT:,}"
+    if rent > config.STRETCH_RENT:
+        text += f" · S${rent - config.STRETCH_RENT:,.0f} off for your S${config.STRETCH_RENT:,} max"
+    else:
+        text += f" · within your S${config.STRETCH_RENT:,} max as is"
+    return text
+
+
 def _card(i: int, v) -> str:
     l = v.listing
     e = html.escape
@@ -62,6 +73,8 @@ def _card(i: int, v) -> str:
         f"📐 {size(l)} · S${l.psf:.2f} psf",
         verdict(v),
     ]
+    if v.negotiable:
+        lines.append(f"🤝 {negotiation(l.rent)}")
     avail = available(l)
     if avail:
         lines.append(f"📅 Available: {avail}")
@@ -89,14 +102,21 @@ def messages(sl: Shortlist, new_only: bool, first_run: bool = False) -> list[str
     when = datetime.now(SGT).strftime("%a %d %b, %H:%M")
     scope = ("all current listings: first run, from now on only new ones" if first_run
              else "new or cheaper since last alert" if new_only else "all current listings")
-    head = (f"🏠 <b>Condo shortlist</b> · {when}\n"
-            f"{len(sl.kept)} shortlisted · {len(sl.unverified)} need a price check ({scope})")
-    if not sl.kept and not sl.unverified:
+    counts = [f"{len(sl.kept)} shortlisted"]
+    if sl.negotiable:
+        counts.append(f"{len(sl.negotiable)} worth negotiating")
+    counts.append(f"{len(sl.unverified)} need a price check")
+    head = f"🏠 <b>Condo shortlist</b> · {when}\n{' · '.join(counts)} ({scope})"
+    if not (sl.kept or sl.unverified or sl.negotiable):
         return [head + "\n\nNothing new matches today."]
     blocks = []
     if sl.kept:
         blocks.append("<b>✅ Shortlist</b>")
         blocks += [_card(i, v) for i, v in enumerate(sl.kept, 1)]
+    if sl.negotiable:
+        blocks.append(f"<b>🤝 Worth negotiating</b> (asking over S${config.MAX_RENT:,}, "
+                      "below market, strong match)")
+        blocks += [_card(i, v) for i, v in enumerate(sl.negotiable, 1)]
     if sl.unverified:
         blocks.append(f"<b>🔎 Needs a price check</b> (S${config.TARGET_RENT:,}-{config.MAX_RENT:,}, "
                       "no market data yet)")

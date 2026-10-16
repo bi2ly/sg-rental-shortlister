@@ -15,6 +15,7 @@ from .pricing.sources import BenchmarkSource
 class Shortlist:
     kept: list[Verdict] = field(default_factory=list)        # ranked, best first
     unverified: list[Verdict] = field(default_factory=list)  # in stretch budget, no market data
+    negotiable: list[Verdict] = field(default_factory=list)  # over budget, worth negotiating
     skipped: list[Verdict] = field(default_factory=list)
     duplicates_removed: int = 0
 
@@ -77,10 +78,14 @@ def build(listings: list[Listing], source: BenchmarkSource) -> Shortlist:
             v.flags.append(f"older building (completed {l.completed_year})")
         if v.keep:
             result.kept.append(v)
+        elif v.negotiable:
+            result.negotiable.append(v)
         elif v.benchmark is None and v.decision.startswith("not kept"):
             result.unverified.append(v)   # can't confirm a good deal, but don't hide it
         else:
             result.skipped.append(v)
     result.kept.sort(key=score, reverse=True)
     result.unverified.sort(key=score, reverse=True)
+    # smallest discount needed first, then the better deal
+    result.negotiable.sort(key=lambda v: (v.listing.rent, v.vs_median_pct))
     return result

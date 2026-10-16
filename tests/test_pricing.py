@@ -106,6 +106,27 @@ def test_small_one_bedroom_flagged(source):
     assert not any("may be a studio" in f for f in roomy.flags)
 
 
+def test_worth_negotiating_tier(source):
+    """26 Newton median S$6.52 psf. Over S$3,500 only for strong, below-market units."""
+    roomy = evaluate(Listing("26 Newton", 3700, 650, bedrooms=1), source)          # 5.69 psf
+    assert roomy.negotiable and not roomy.keep
+    study = evaluate(Listing("26 Newton", 3600, 560, bedrooms=1, has_study=True), source)
+    assert study.negotiable
+    small = evaluate(Listing("26 Newton", 3600, 560, bedrooms=1), source)          # no study
+    assert not small.negotiable and "rejected" in small.decision
+    dear = evaluate(Listing("26 Newton", 3800, 560, bedrooms=1, has_study=True), source)  # 6.79 psf
+    assert not dear.negotiable
+    no_data = evaluate(Listing("Unknown Place", 3600, 800, bedrooms=1), source)
+    assert not no_data.negotiable
+    assert "over S$3,800" in evaluate(Listing("26 Newton", 3900, 900, bedrooms=2), source).decision
+
+
+def test_negotiation_text():
+    from shortlister.notify import negotiation
+    assert negotiation(3750) == "Needs S$250 off (7%) to reach S$3,500 · S$50 off for your S$3,700 max"
+    assert negotiation(3600).endswith("within your S$3,700 max as is")
+
+
 def test_min_size_500(source):
     assert "under 500" in evaluate(Listing("26 Newton", 2900, 490, bedrooms=1), source).decision
     assert evaluate(Listing("26 Newton", 2900, 549, bedrooms=1), source).keep

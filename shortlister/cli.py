@@ -50,7 +50,7 @@ def _only_unseen(sl, seen):
             out.append(v)
         return out
     return Shortlist(kept=fresh(sl.kept), unverified=fresh(sl.unverified),
-                     skipped=sl.skipped, duplicates_removed=sl.duplicates_removed)
+                     negotiable=fresh(sl.negotiable), skipped=sl.skipped, duplicates_removed=sl.duplicates_removed)
 
 
 def _eligible(listings, sl):
@@ -67,7 +67,7 @@ def _add_details(sl, listings, source):
     from .collect import propertyguru as pg
     from .collect.apify import run_actor
     from .notify import UNVERIFIED_MAX
-    shown = sl.kept + sl.unverified[:UNVERIFIED_MAX]          # exactly the cards sent
+    shown = sl.kept + sl.negotiable + sl.unverified[:UNVERIFIED_MAX]   # exactly the cards sent
     cands = [v.listing for v in shown if v.listing.source == "PropertyGuru"]
     urls = [l.url for l in cands if l.url][: config.PG_DETAIL_MAX]
     if not urls:
@@ -82,7 +82,7 @@ def _add_details(sl, listings, source):
     listings = add_mrt_walk(listings, Geocoder())
     by_id = {l.listing_id: l for l in listings}
     from dataclasses import replace
-    for v in sl.kept + sl.unverified:      # refresh cards in place, keep the filtering
+    for v in sl.kept + sl.negotiable + sl.unverified:   # refresh cards in place
         if v.listing.listing_id in by_id:
             v.listing = by_id[v.listing.listing_id]
     return sl, listings
@@ -190,11 +190,16 @@ def main(argv: list[str] | None = None) -> int:
             seen.save()
         print(f"{len(rows)} listings collected | {len(dropped)} removed (rooms, HDB/walk-ups, outside area) | "
               f"{sl.duplicates_removed} duplicates removed | "
-              f"{len(sl.kept)} shortlisted | {len(sl.unverified)} need a price check | "
+              f"{len(sl.kept)} shortlisted | {len(sl.negotiable)} worth negotiating | "
+              f"{len(sl.unverified)} need a price check | "
               f"{len(sl.skipped)} skipped")
         print("\n=== SHORTLIST (best first) ===")
         for i, v in enumerate(sl.kept, 1):
             _print_card(i, v)
+        if sl.negotiable:
+            print(f"\n=== WORTH NEGOTIATING (asking over S${config.MAX_RENT:,}) ===")
+            for i, v in enumerate(sl.negotiable, 1):
+                _print_card(i, v)
         if sl.unverified:
             print(f"\n=== NEEDS PRICE CHECK (above S${config.TARGET_RENT:,}, no market data) ===")
             for i, v in enumerate(sl.unverified, 1):

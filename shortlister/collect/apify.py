@@ -24,7 +24,7 @@ def propertyguru_search_url(district: int) -> str:
     condo/apartment only. Everything returned is relevant, so a full sweep stays cheap."""
     q = urllib.parse.urlencode([
         ("listingType", "rent"), ("districtCode", f"D{district:02d}"),
-        ("maxPrice", config.MAX_RENT), ("minSize", min(config.MIN_SQFT, config.MIN_SQFT_WITH_STUDY)),
+        ("maxPrice", config.NEGOTIATE_MAX_ASK),("minSize", min(config.MIN_SQFT, config.MIN_SQFT_WITH_STUDY)),
         ("propertyTypeGroup", "N"), ("propertyTypeCode", "CONDO"), ("propertyTypeCode", "APT"),
         ("propertyTypeCode", "EXCON"), ("isCommercial", "false"),
     ])
@@ -56,7 +56,7 @@ def ninetynine_input(max_results: int = 60) -> dict:
         "radius": config.SEARCH_RADIUS_M,
         "propertyType": "condo",
         "propertySegment": "residential",
-        "maxPrice": config.MAX_RENT,
+        "maxPrice": config.NEGOTIATE_MAX_ASK,
         "minFloorArea": min(config.MIN_SQFT, config.MIN_SQFT_WITH_STUDY),
         "maxResults": max_results,
         "enrichListings": False,
