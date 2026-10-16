@@ -81,7 +81,8 @@ def markdown(sl: Shortlist, collected: int, removed: int, new_only: bool) -> str
     lines += _rows(sl.kept) if sl.kept else ["Nothing new matches today."]
     if sl.negotiable:
         lines += ["", f"## Worth negotiating ({len(sl.negotiable)})", "",
-                  f"Asking S${config.MAX_RENT:,}-{config.NEGOTIATE_MAX_ASK:,}, below market and a "
+                  f"Asking S${config.MAX_RENT:,}-{config.NEGOTIATE_MAX_ASK:,}, at least "
+                  f"{config.NEGOTIATE_BELOW_MARKET_PCT}% below market and a "
                   f"strong match (at least {config.NEGOTIATE_MIN_SQFT} sqft, or "
                   f"{config.NEGOTIATE_MIN_SQFT_WITH_STUDY} with a study).", ""]
         lines += _rows(sl.negotiable)

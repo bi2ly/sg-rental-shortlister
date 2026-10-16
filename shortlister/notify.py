@@ -115,7 +115,7 @@ def messages(sl: Shortlist, new_only: bool, first_run: bool = False) -> list[str
         blocks += [_card(i, v) for i, v in enumerate(sl.kept, 1)]
     if sl.negotiable:
         blocks.append(f"<b>🤝 Worth negotiating</b> (asking over S${config.MAX_RENT:,}, "
-                      "below market, strong match)")
+                      f"{config.NEGOTIATE_BELOW_MARKET_PCT}%+ below market, strong match)")
         blocks += [_card(i, v) for i, v in enumerate(sl.negotiable, 1)]
     if sl.unverified:
         blocks.append(f"<b>🔎 Needs a price check</b> (S${config.TARGET_RENT:,}-{config.MAX_RENT:,}, "

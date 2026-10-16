@@ -81,13 +81,14 @@ def evaluate(listing: Listing, source: BenchmarkSource) -> Verdict:
         if not bench:
             v.reasons.append(f"rejected: over S${config.MAX_RENT:,} and no market data to "
                              "show it's below market")
-        elif v.good_deal and strong_match(listing):
+        elif (v.vs_median_pct <= -config.NEGOTIATE_BELOW_MARKET_PCT
+              and strong_match(listing)):
             v.negotiable = True
             v.reasons.append(f"worth negotiating: S${listing.rent - config.MAX_RENT:,.0f} over "
-                             f"S${config.MAX_RENT:,}, below market and a strong match")
+                             f"S${config.MAX_RENT:,}, at least {config.NEGOTIATE_BELOW_MARKET_PCT}% below market and a strong match")
         else:
-            v.reasons.append(f"rejected: over S${config.MAX_RENT:,} and not a below-market "
-                             "strong match")
+            v.reasons.append(f"rejected: over S${config.MAX_RENT:,} and not a strong match at least "
+                             f"{config.NEGOTIATE_BELOW_MARKET_PCT}% below market")
     elif listing.rent <= config.TARGET_RENT:
         v.keep = True
         v.reasons.append(f"within S${config.TARGET_RENT:,} target budget")

@@ -8,6 +8,9 @@ NEGOTIATE_MAX_ASK = 3800  # highest asking rent considered (asking is often ~S$2
 STRETCH_RENT = 3700       # most you'd sign at, for the right place
 NEGOTIATE_MIN_SQFT = 650             # a strong match: this big...
 NEGOTIATE_MIN_SQFT_WITH_STUDY = 550  # ...or this big with a study
+# Must be this far below the project median: a margin for the project-wide median
+# mixing unit sizes (until URA contract data by size is available).
+NEGOTIATE_BELOW_MARKET_PCT = 5
 MIN_SQFT = 500           # back to 500 on 2026-10-16: 550 hid real 1BRs (e.g. 549 sqft)
 MIN_SQFT_WITH_STUDY = 500 # a unit with a study can't be a hidden studio
 REJECT_STUDIOS = True     # need a separate bedroom (bed and living area not shared)

@@ -110,8 +110,10 @@ def test_worth_negotiating_tier(source):
     """26 Newton median S$6.52 psf. Over S$3,500 only for strong, below-market units."""
     roomy = evaluate(Listing("26 Newton", 3700, 650, bedrooms=1), source)          # 5.69 psf
     assert roomy.negotiable and not roomy.keep
-    study = evaluate(Listing("26 Newton", 3600, 560, bedrooms=1, has_study=True), source)
+    study = evaluate(Listing("26 Newton", 3600, 600, bedrooms=1, has_study=True), source)  # -8%
     assert study.negotiable
+    barely = evaluate(Listing("26 Newton", 3600, 560, bedrooms=1, has_study=True), source)  # -1.4%
+    assert not barely.negotiable
     small = evaluate(Listing("26 Newton", 3600, 560, bedrooms=1), source)          # no study
     assert not small.negotiable and "rejected" in small.decision
     dear = evaluate(Listing("26 Newton", 3800, 560, bedrooms=1, has_study=True), source)  # 6.79 psf

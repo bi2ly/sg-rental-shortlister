@@ -20,7 +20,7 @@ tenancy documents. The final choice always stays with me.
 ## Definition of a "good deal"
 
 A listing asking S$3,500-3,800 is shown in a separate "Worth negotiating" section only if it is
-below the project's market median **and** a strong match (at least 650 sqft, or 550 sqft with a
+at least 5% below the project's market median **and** a strong match (at least 650 sqft, or 550 sqft with a
 study); the card shows the discount needed to reach S$3,500 and S$3,700.
 
 A listing between S$3,000 and S$3,500 is kept only if at least one is true:
