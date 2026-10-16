@@ -34,6 +34,25 @@ def test_seen_store_flow(tmp_path):
     assert names["Vetro"].flags[0] == "⬇️ price reduced from S$3,000"
 
 
+def test_rejected_units_not_remembered(tmp_path):
+    """A unit rejected today must still be alerted if a rule is loosened later."""
+    from shortlister.cli import _eligible
+    cache = tmp_path / "c.json"
+    cache.write_text(json.dumps({"fetched_at": time.time(), "records": []}))
+    ok, too_dear = _l("Okio", 2900, "1"), _l("Vetro", 3600, "2")
+    sl = build([ok, too_dear], DataGovSource(cache_path=cache))
+    assert [l.listing_id for l in _eligible([ok, too_dear], sl)] == ["1"]
+
+
+def test_small_one_bedder_kept_with_floor_plan_flag(tmp_path):
+    cache = tmp_path / "c.json"
+    cache.write_text(json.dumps({"fetched_at": time.time(), "records": []}))
+    l = Listing("Bella Casita", 2900, 506, bedrooms=1, source="PropertyGuru",
+                listing_id="25172436", lat=1.3, lng=103.9)
+    sl = build([l], DataGovSource(cache_path=cache))
+    assert sl.kept and any("floor plan" in f for f in sl.kept[0].flags)
+
+
 def test_not_remembered_if_never_saved(tmp_path):
     """If sending fails the run stops before save(): listings come again next time."""
     store = SeenStore(token="", local=tmp_path / "seen.json").load()

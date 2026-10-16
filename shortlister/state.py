@@ -18,7 +18,10 @@ from pathlib import Path
 from .models import Listing
 
 STORE_NAME = "sg-rental-shortlister"
-RECORD = "seen-listings"
+# v2 (2026-10-16) remembers only listings that passed the criteria, so loosening a
+# rule brings previously rejected units back. v1 remembered everything collected.
+RECORD = "seen-listings-v2"
+OLD_RECORD = "seen-listings"
 LOCAL = Path(__file__).resolve().parents[1] / "data" / "seen.json"
 API = "https://api.apify.com/v2"
 FORGET_AFTER_DAYS = 60   # a unit relisted after 2 months counts as new again
@@ -34,6 +37,7 @@ class SeenStore:
         self.local = Path(local)
         self._store_id: str | None = None
         self.data: dict = {}
+        self.from_old_record = False   # loaded v1 memory (remembered rejected units too)
 
     # --- backends -------------------------------------------------------------
     def _req(self, method: str, url: str, body: bytes | None = None, ctype="application/json"):
@@ -49,13 +53,16 @@ class SeenStore:
 
     def load(self) -> "SeenStore":
         if self.token:
-            try:
-                with self._req("GET", f"{API}/key-value-stores/{self._store()}/records/{RECORD}") as r:
-                    self.data = json.load(r)
-            except urllib.error.HTTPError as e:
-                if e.code != 404:
-                    raise
-                self.data = {}            # first run
+            for record in (RECORD, OLD_RECORD):
+                try:
+                    with self._req("GET", f"{API}/key-value-stores/{self._store()}/records/{record}") as r:
+                        self.data = json.load(r)
+                    self.from_old_record = record == OLD_RECORD
+                    break
+                except urllib.error.HTTPError as e:
+                    if e.code != 404:
+                        raise
+            # neither record: first run, data stays {}
         elif self.local.exists():
             self.data = json.loads(self.local.read_text())
         return self
@@ -84,6 +91,10 @@ class SeenStore:
         if l.rent < prev["rent"]:
             return "price_drop", prev["rent"]
         return "seen", prev["rent"]
+
+    def forget(self, listings: list[Listing]) -> None:
+        for l in listings:
+            self.data.pop(key(l), None)
 
     def remember(self, listings: list[Listing]) -> None:
         today = datetime.now(timezone.utc).date().isoformat()

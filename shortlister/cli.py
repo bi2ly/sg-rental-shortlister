@@ -53,6 +53,15 @@ def _only_unseen(sl, seen):
                      skipped=sl.skipped, duplicates_removed=sl.duplicates_removed)
 
 
+def _eligible(listings, sl):
+    """Listings to remember: everything except units rejected by the criteria.
+    Rejected units stay unremembered, so they are alerted if a rule is loosened
+    or their price drops into range. Duplicates of a kept unit are remembered."""
+    from .state import key
+    rejected = {key(v.listing) for v in sl.skipped}
+    return [l for l in listings if key(l) not in rejected]
+
+
 def _add_details(sl, listings, source):
     """Open the full PropertyGuru page of shortlisted units for the move-in date."""
     from .collect import propertyguru as pg
@@ -160,6 +169,10 @@ def main(argv: list[str] | None = None) -> int:
             from .state import SeenStore
             seen = SeenStore().load()
             first_run = seen.is_empty
+            if seen.from_old_record:
+                # v1 memory also holds units rejected under the old 550 sqft
+                # minimum (never alerted): forget them so they can be sent now.
+                seen.forget([l for l in listings if l.sqft < 550])
             sl = _only_unseen(sl, seen)
         if args.live:
             sl, listings = _add_details(sl, listings, source)
@@ -173,7 +186,7 @@ def main(argv: list[str] | None = None) -> int:
         if seen is not None:
             # only after a successful send: if Telegram fails, the run errors
             # out above and these listings are alerted again next time
-            seen.remember(listings)
+            seen.remember(_eligible(listings, sl))
             seen.save()
         print(f"{len(rows)} listings collected | {len(dropped)} removed (rooms, HDB/walk-ups, outside area) | "
               f"{sl.duplicates_removed} duplicates removed | "

@@ -106,9 +106,9 @@ def test_small_one_bedroom_flagged(source):
     assert not any("may be a studio" in f for f in roomy.flags)
 
 
-def test_min_size_550_but_500_with_study(source):
-    assert "under 550" in evaluate(Listing("26 Newton", 2900, 540, bedrooms=1), source).decision
-    assert evaluate(Listing("26 Newton", 2900, 549, bedrooms=1, has_study=True), source).keep
+def test_min_size_500(source):
+    assert "under 500" in evaluate(Listing("26 Newton", 2900, 490, bedrooms=1), source).decision
+    assert evaluate(Listing("26 Newton", 2900, 549, bedrooms=1), source).keep
 
 
 def test_fuzzy_match_needs_same_district(tmp_path):

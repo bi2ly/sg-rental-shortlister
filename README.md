@@ -82,7 +82,8 @@ The shortlist has three sections:
 - **Skipped** (with `--show-skipped`): rejected, with the reason
 
 Lessons from real data: 99.co mixes room rentals into condo results; agents list
-studios as 1-bedrooms (minimum size raised to 550 sqft, 500 with a study);
+studios as 1-bedrooms (1BRs under 550 sqft are flagged "check the floor plan";
+minimum 500 sqft);
 99.co's own listing URLs 404, so links use `99.co/property/<id>`; PropertyGuru
 card data has no coordinates, so buildings are located with OneMap.
 
